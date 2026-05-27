@@ -2,5 +2,5 @@
 
 | Название документа | Ссылка |
 |---|---|
-| СТРАТЕГИЯ ОБЪЕКТНО-РЕЛЯЦИОННОГО ОТОБРАЖЕНИЯ (ORM) | [ORM-strategy.md](ORM-strategy.md) |
+| Стратегия объектно-реляционного отображения (ORM) | [ORM-strategy.md](ORM-strategy.md) |
 | ER-диаграмма базы данных | [er-diagram.md](er-diagram.md) |
