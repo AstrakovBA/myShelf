@@ -9,13 +9,12 @@ target/
 
 # Dependencies
 .gradle/
-lib/
-jars/
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+coverage/
+htmlcov/
+*.coverage
 
 # Environment
 .env
@@ -25,11 +24,14 @@ jars/
 # Editors
 .vscode/
 .idea/
-*.iml
-*.ipr
-*.iws
+*.swp
+*.swo
+*.tmp
 
-# OS generated files
+# Logs
+*.log
+
+# System
 .DS_Store
 Thumbs.db
 ```
