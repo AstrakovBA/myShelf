@@ -2,6 +2,6 @@
 
 | Название документа | Ссылка |
 |---|---|
-| АРХИТЕКТУРНЫЕ РЕШЕНИЯ (ADR) | [ADR.md](ADR.md) |
+| Архитектурные решения (ADR) | [ADR.md](ADR.md) |
 | Спецификация интерфейсов и контрактов Java | [interfaces.md](interfaces.md) |
 | Диаграммы пакетов | [pcmef-diagram.md](pcmef-diagram.md) |
