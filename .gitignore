@@ -4,17 +4,20 @@
 *.o
 *.obj
 *.out
-build/
-target/
+*.dll
+*.so
+*.a
 
 # Dependencies
-.gradle/
+target/
 .mypy_cache/
 .pytest_cache/
 __pycache__/
-coverage/
-htmlcov/
-*.coverage
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
 
 # Environment
 .env
@@ -24,14 +27,7 @@ htmlcov/
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
-# Logs
-*.log
-
-# System
-.DS_Store
-Thumbs.db
+# Build systems
+.gradle/
 ```
