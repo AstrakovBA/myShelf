@@ -4,15 +4,12 @@
 *.o
 *.obj
 *.out
-*.dll
-*.so
-*.a
+build/
+target/
 
 # Dependencies
-target/
-.mypy_cache/
-.pytest_cache/
-__pycache__/
+.gradle/
+lib/
 
 # Logs and temp files
 *.log
@@ -27,7 +24,20 @@ __pycache__/
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Build systems
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Maven/Gradle cache
 .gradle/
+.mypy_cache/
+.pytest_cache/
 ```
