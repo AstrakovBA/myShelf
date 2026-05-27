@@ -2,6 +2,7 @@
 
 | Название документа | Ссылка |
 |---|---|
+| Пользовательский сценарий приложения | [user-scenario.md](user-scenario.md) |
 | SWOT-анализ проекта | [SWOT-analysis.md](SWOT-analysis.md) |
 | BUC-диаграмма | [buc-diagram.md](buc-diagram.md) |
 | Бизнес-глоссарий проекта | [business-glossary.md](business-glossary.md) |
