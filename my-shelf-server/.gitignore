@@ -3,8 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA plus GigaIDE###
 .idea
+.gigaide
 *.iws
 *.iml
 *.ipr
