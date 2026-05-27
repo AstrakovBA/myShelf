@@ -1,20 +1,12 @@
 ```
-# Compiled and build artifacts
-*.class
-*.o
-*.obj
-*.out
-build/
-target/
-
 # Dependencies
+target/
+.m2/
 .gradle/
-.mypy_cache/
-.pytest_cache/
-__pycache__/
-coverage/
-htmlcov/
-*.coverage
+
+# Logs and temp files
+*.log
+*.tmp
 
 # Environment
 .env
@@ -26,12 +18,9 @@ htmlcov/
 .idea/
 *.swp
 *.swo
-*.tmp
 
-# Logs
-*.log
-
-# System
-.DS_Store
-Thumbs.db
+# Build artifacts
+*.class
+*.jar
+*.war
 ```
