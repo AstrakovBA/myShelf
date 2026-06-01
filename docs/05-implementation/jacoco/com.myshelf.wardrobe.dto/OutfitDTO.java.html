@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OutfitDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.dto</a> &gt; <span class="el_source">OutfitDTO.java</span></div><h1>OutfitDTO.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * DTO для образа (комплекта вещей).
+ */
+public class OutfitDTO {
+    private UUID id;
+
+    @NotBlank(message = &quot;Название образа не может быть пустым&quot;)
+    private String name;
+
+    private String description;
+
+    @NotEmpty(message = &quot;Образ должен содержать хотя бы один слот&quot;)
+    private List&lt;OutfitSlotDTO&gt; slots;
+
+<span class="fc" id="L23">    public OutfitDTO() {</span>
+<span class="fc" id="L24">    }</span>
+
+<span class="fc" id="L26">    public OutfitDTO(UUID id, String name, String description, List&lt;OutfitSlotDTO&gt; slots) {</span>
+<span class="fc" id="L27">        this.id = id;</span>
+<span class="fc" id="L28">        this.name = name;</span>
+<span class="fc" id="L29">        this.description = description;</span>
+<span class="fc" id="L30">        this.slots = slots;</span>
+<span class="fc" id="L31">    }</span>
+
+    public UUID getId() {
+<span class="fc" id="L34">        return id;</span>
+    }
+
+    public void setId(UUID id) {
+<span class="fc" id="L38">        this.id = id;</span>
+<span class="fc" id="L39">    }</span>
+
+    public String getName() {
+<span class="fc" id="L42">        return name;</span>
+    }
+
+    public void setName(String name) {
+<span class="fc" id="L46">        this.name = name;</span>
+<span class="fc" id="L47">    }</span>
+
+    public String getDescription() {
+<span class="fc" id="L50">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="fc" id="L54">        this.description = description;</span>
+<span class="fc" id="L55">    }</span>
+
+    public List&lt;OutfitSlotDTO&gt; getSlots() {
+<span class="fc" id="L58">        return slots;</span>
+    }
+
+    public void setSlots(List&lt;OutfitSlotDTO&gt; slots) {
+<span class="fc" id="L62">        this.slots = slots;</span>
+<span class="fc" id="L63">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

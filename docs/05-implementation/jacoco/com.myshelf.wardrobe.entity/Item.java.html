@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Item.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.entity</a> &gt; <span class="el_source">Item.java</span></div><h1>Item.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
+import java.util.UUID;
+
+/**
+ * Сущность вещи (предмета гардероба).
+ */
+@Entity
+@Table(name = &quot;items&quot;)
+@Getter
+<span class="pc" id="L17">@Setter</span>
+<span class="nc" id="L18">@NoArgsConstructor</span>
+<span class="fc" id="L19">@AllArgsConstructor</span>
+<span class="pc" id="L20">@Builder</span>
+public class Item {
+
+    @Id
+    @Column(columnDefinition = &quot;uuid&quot;)
+<span class="fc" id="L25">    private UUID id;</span>
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;user_id&quot;, nullable = false)
+<span class="fc" id="L29">    private User user;</span>
+
+    @Column(nullable = false, length = 255)
+<span class="fc" id="L32">    private String name;</span>
+
+    @Column(columnDefinition = &quot;TEXT&quot;)
+<span class="fc" id="L35">    private String description;</span>
+
+    @Column(name = &quot;image_url&quot;, length = 2048)
+<span class="fc" id="L38">    private String imageUrl;</span>
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+<span class="fc" id="L42">    private Category category;</span>
+
+    @Enumerated(EnumType.STRING)
+<span class="fc" id="L45">    private Season season;</span>
+
+    @CreationTimestamp
+    @Column(name = &quot;created_at&quot;, updatable = false)
+<span class="nc" id="L49">    private Instant createdAt;</span>
+
+    @UpdateTimestamp
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L53">    private Instant updatedAt;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

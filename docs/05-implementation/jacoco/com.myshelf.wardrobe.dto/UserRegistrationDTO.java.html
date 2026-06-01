@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRegistrationDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.dto</a> &gt; <span class="el_source">UserRegistrationDTO.java</span></div><h1>UserRegistrationDTO.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+/**
+ * DTO для регистрации нового пользователя.
+ */
+public class UserRegistrationDTO {
+    @NotBlank(message = &quot;Email не может быть пустым&quot;)
+    @Email(message = &quot;Некорректный формат email&quot;)
+    private String email;
+
+    @NotBlank(message = &quot;Пароль не может быть пустым&quot;)
+    @Size(min = 8, message = &quot;Пароль должен содержать минимум 8 символов&quot;)
+    private String password;
+
+    @NotBlank(message = &quot;Имя пользователя не может быть пустым&quot;)
+    private String displayName;
+
+<span class="nc" id="L22">    public UserRegistrationDTO() {</span>
+<span class="nc" id="L23">    }</span>
+
+<span class="fc" id="L25">    public UserRegistrationDTO(String email, String password, String displayName) {</span>
+<span class="fc" id="L26">        this.email = email;</span>
+<span class="fc" id="L27">        this.password = password;</span>
+<span class="fc" id="L28">        this.displayName = displayName;</span>
+<span class="fc" id="L29">    }</span>
+
+    public String getEmail() {
+<span class="fc" id="L32">        return email;</span>
+    }
+
+    public void setEmail(String email) {
+<span class="nc" id="L36">        this.email = email;</span>
+<span class="nc" id="L37">    }</span>
+
+    public String getPassword() {
+<span class="fc" id="L40">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L44">        this.password = password;</span>
+<span class="nc" id="L45">    }</span>
+
+    public String getDisplayName() {
+<span class="fc" id="L48">        return displayName;</span>
+    }
+
+    public void setDisplayName(String displayName) {
+<span class="nc" id="L52">        this.displayName = displayName;</span>
+<span class="nc" id="L53">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

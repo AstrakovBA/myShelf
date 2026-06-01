@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.controller</a> &gt; <span class="el_source">ItemController.java</span></div><h1>ItemController.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.controller;
+
+import com.myshelf.wardrobe.dto.ItemDTO;
+import com.myshelf.wardrobe.service.ItemService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Контроллер для управления вещами (предметами гардероба).
+ */
+@RestController
+@RequestMapping(&quot;/api/items&quot;)
+public class ItemController {
+
+    private final ItemService itemService;
+
+<span class="fc" id="L23">    public ItemController(ItemService itemService) {</span>
+<span class="fc" id="L24">        this.itemService = itemService;</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Получение всех вещей текущего пользователя.
+     * GET /api/items
+     */
+    @GetMapping
+    public ResponseEntity&lt;List&lt;ItemDTO&gt;&gt; getUserItems(Authentication authentication) {
+<span class="fc" id="L33">        UUID userId = (UUID) authentication.getPrincipal();</span>
+<span class="fc" id="L34">        List&lt;ItemDTO&gt; items = itemService.getItemsByUserId(userId);</span>
+<span class="fc" id="L35">        return ResponseEntity.ok(items);</span>
+    }
+
+    /**
+     * Получение вещи по ID.
+     * GET /api/items/{id}
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;ItemDTO&gt; getItemById(@PathVariable UUID id) {
+<span class="fc" id="L44">        ItemDTO item = itemService.getItemById(id);</span>
+<span class="fc" id="L45">        return ResponseEntity.ok(item);</span>
+    }
+
+    /**
+     * Создание новой вещи.
+     * POST /api/items
+     */
+    @PostMapping
+    public ResponseEntity&lt;ItemDTO&gt; createItem(@Valid @RequestBody ItemDTO dto,
+                                              Authentication authentication) {
+<span class="fc" id="L55">        UUID userId = (UUID) authentication.getPrincipal();</span>
+<span class="fc" id="L56">        ItemDTO createdItem = itemService.createItem(userId, dto);</span>
+<span class="fc" id="L57">        return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);</span>
+    }
+
+    /**
+     * Обновление вещи.
+     * PUT /api/items/{id}
+     */
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;ItemDTO&gt; updateItem(@PathVariable UUID id,
+                                              @Valid @RequestBody ItemDTO dto) {
+<span class="fc" id="L67">        ItemDTO updatedItem = itemService.updateItem(id, dto);</span>
+<span class="fc" id="L68">        return ResponseEntity.ok(updatedItem);</span>
+    }
+
+    /**
+     * Удаление вещи.
+     * DELETE /api/items/{id}
+     */
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteItem(@PathVariable UUID id) {
+<span class="fc" id="L77">        itemService.deleteItem(id);</span>
+<span class="fc" id="L78">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
