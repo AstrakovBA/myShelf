@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<!--
+  Исключения для слоёв с шаблонным кодом (DTO, entity, enum, Spring Data repositories).
+  JavaDoc для public-методов обязателен в service, controller, mapper, security, config.
+-->
+<suppressions>
+    <suppress checks="MissingJavadocMethod|JavadocMethod|MissingJavadocType"
+              files="[/\\]dto[/\\].*\.java"/>
+    <suppress checks="MissingJavadocMethod|JavadocMethod|MissingJavadocType"
+              files="[/\\]entity[/\\].*\.java"/>
+    <suppress checks="MissingJavadocMethod|JavadocMethod|MissingJavadocType"
+              files="[/\\]repository[/\\].*\.java"/>
+    <suppress checks="MissingJavadocType"
+              files="WardrobeApplication\.java"/>
+</suppressions>

@@ -8,7 +8,12 @@ import com.myshelf.wardrobe.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -21,13 +26,20 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Создаёт контроллер аутентификации.
+     *
+     * @param authService сервис регистрации и входа
+     */
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     /**
-     * Регистрация нового пользователя.
-     * POST /api/auth/register
+     * Регистрирует нового пользователя и возвращает JWT с профилем.
+     *
+     * @param request данные регистрации
+     * @return токен и профиль пользователя
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody UserRegistrationDTO request) {
@@ -36,8 +48,11 @@ public class AuthController {
     }
 
     /**
-     * Аутентификация пользователя (вход).
-     * POST /api/auth/login
+     * Выполняет вход по email и паролю.
+     *
+     * @param email email пользователя
+     * @param password пароль
+     * @return токен и профиль пользователя
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestParam String email,
@@ -47,8 +62,10 @@ public class AuthController {
     }
 
     /**
-     * Смена пароля авторизованным пользователем.
-     * POST /api/auth/change-password
+     * Меняет пароль текущего авторизованного пользователя.
+     *
+     * @param dto текущий и новый пароль
+     * @param authentication контекст аутентификации
      */
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody PasswordChangeDTO dto,
@@ -59,8 +76,10 @@ public class AuthController {
     }
 
     /**
-     * Получение профиля текущего пользователя.
-     * GET /api/auth/profile
+     * Возвращает профиль текущего авторизованного пользователя.
+     *
+     * @param authentication контекст аутентификации
+     * @return профиль пользователя
      */
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getProfile(Authentication authentication) {

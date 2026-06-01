@@ -2,18 +2,17 @@ package com.myshelf.wardrobe.service;
 
 import com.myshelf.wardrobe.dto.OutfitDTO;
 import com.myshelf.wardrobe.dto.OutfitSlotDTO;
-import com.myshelf.wardrobe.entity.Category;
 import com.myshelf.wardrobe.entity.Item;
 import com.myshelf.wardrobe.entity.Outfit;
 import com.myshelf.wardrobe.entity.OutfitSlot;
 import com.myshelf.wardrobe.entity.User;
+import com.myshelf.wardrobe.mapper.OutfitMapper;
 import com.myshelf.wardrobe.repository.ItemRepository;
 import com.myshelf.wardrobe.repository.OutfitRepository;
 import com.myshelf.wardrobe.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,155 +27,105 @@ public class OutfitService {
     private final OutfitRepository outfitRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final OutfitMapper outfitMapper;
 
+    /**
+     * Создаёт сервис образов.
+     *
+     * @param outfitRepository репозиторий образов
+     * @param userRepository репозиторий пользователей
+     * @param itemRepository репозиторий вещей
+     * @param outfitMapper маппер Outfit ↔ DTO
+     */
     public OutfitService(OutfitRepository outfitRepository,
                          UserRepository userRepository,
-                         ItemRepository itemRepository) {
+                         ItemRepository itemRepository,
+                         OutfitMapper outfitMapper) {
         this.outfitRepository = outfitRepository;
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
+        this.outfitMapper = outfitMapper;
     }
 
     /**
-     * Создание нового образа.
-     * Валидация: категория вещи в слоте должна совпадать с типом слота.
+     * Создаёт новый образ с валидацией слотов и вещей.
+     *
+     * @param userId идентификатор владельца
+     * @param outfitDTO данные образа и слотов
+     * @return сохранённый образ
      */
     public OutfitDTO createOutfit(UUID userId, OutfitDTO outfitDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
-        Outfit outfit = Outfit.builder()
-                .id(UUID.randomUUID())
-                .user(user)
-                .name(outfitDTO.getName())
-                .description(outfitDTO.getDescription())
-                .slots(new ArrayList<>())
-                .build();
-
-        // Создаем слоты и выполняем валидацию
-        if (outfitDTO.getSlots() != null) {
-            for (OutfitSlotDTO slotDTO : outfitDTO.getSlots()) {
-                // Если itemId указан, проверяем соответствие категории типу слота
-                if (slotDTO.getItemId() != null) {
-                    Item item = itemRepository.findById(slotDTO.getItemId())
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "Вещь с ID " + slotDTO.getItemId() + " не найдена"));
-
-                    // Валидация: категория вещи должна совпадать с типом слота
-                    if (item.getCategory() != slotDTO.getSlotType()) {
-                        throw new IllegalArgumentException(
-                                "Категория вещи '" + item.getCategory() + 
-                                "' не соответствует типу слота '" + slotDTO.getSlotType() + "'");
-                    }
-
-                    // Проверяем, что вещь принадлежит текущему пользователю
-                    if (!item.getUser().getId().equals(userId)) {
-                        throw new IllegalArgumentException(
-                                "Вещь не принадлежит текущему пользователю");
-                    }
-
-                    OutfitSlot slot = OutfitSlot.builder()
-                            .id(UUID.randomUUID())
-                            .outfit(outfit)
-                            .item(item)
-                            .slotType(slotDTO.getSlotType())
-                            .build();
-
-                    outfit.addSlot(slot);
-                } else {
-                    // Слот без вещи (пустой слот)
-                    OutfitSlot slot = OutfitSlot.builder()
-                            .id(UUID.randomUUID())
-                            .outfit(outfit)
-                            .item(null)
-                            .slotType(slotDTO.getSlotType())
-                            .build();
-
-                    outfit.addSlot(slot);
-                }
-            }
-        }
+        Outfit outfit = outfitMapper.toEntity(outfitDTO, user);
+        applySlotsFromDTO(outfit, outfitDTO.getSlots(), userId);
 
         Outfit savedOutfit = outfitRepository.save(outfit);
-        return convertToDTO(savedOutfit);
+        return outfitMapper.toDTO(savedOutfit);
     }
 
     /**
-     * Получение образа по ID.
+     * Возвращает образ по идентификатору (делегирует {@link #getOutfitDetails(UUID)}).
+     *
+     * @param outfitId идентификатор образа
+     * @return DTO образа со слотами
      */
     @Transactional(readOnly = true)
     public OutfitDTO getOutfitById(UUID outfitId) {
-        Outfit outfit = outfitRepository.findById(outfitId)
-                .orElseThrow(() -> new IllegalArgumentException("Образ не найден"));
-        return convertToDTO(outfit);
+        return getOutfitDetails(outfitId);
     }
 
     /**
-     * Получение всех образов пользователя.
+     * Возвращает образ со слотами, загруженными через JOIN FETCH.
+     *
+     * @param outfitId идентификатор образа
+     * @return DTO образа со слотами
+     */
+    @Transactional(readOnly = true)
+    public OutfitDTO getOutfitDetails(UUID outfitId) {
+        Outfit outfit = outfitRepository.findWithSlots(outfitId)
+                .orElseThrow(() -> new IllegalArgumentException("Образ не найден"));
+        return outfitMapper.toDTO(outfit);
+    }
+
+    /**
+     * Возвращает все образы пользователя.
+     *
+     * @param userId идентификатор владельца
+     * @return список DTO образов
      */
     @Transactional(readOnly = true)
     public List<OutfitDTO> getOutfitsByUserId(UUID userId) {
         List<Outfit> outfits = outfitRepository.findByUserId(userId);
         return outfits.stream()
-                .map(this::convertToDTO)
+                .map(outfitMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Обновление образа.
+     * Обновляет образ и его слоты.
+     *
+     * @param outfitId идентификатор образа
+     * @param outfitDTO новые данные образа и слотов
+     * @return обновлённый образ
      */
     public OutfitDTO updateOutfit(UUID outfitId, OutfitDTO outfitDTO) {
-        Outfit outfit = outfitRepository.findById(outfitId)
+        Outfit outfit = outfitRepository.findWithSlots(outfitId)
                 .orElseThrow(() -> new IllegalArgumentException("Образ не найден"));
 
-        outfit.setName(outfitDTO.getName());
-        outfit.setDescription(outfitDTO.getDescription());
-
-        // Очищаем старые слоты
+        outfitMapper.updateEntityFromDTO(outfit, outfitDTO);
         outfit.getSlots().clear();
-
-        // Добавляем новые слоты с валидацией
-        if (outfitDTO.getSlots() != null) {
-            for (OutfitSlotDTO slotDTO : outfitDTO.getSlots()) {
-                if (slotDTO.getItemId() != null) {
-                    Item item = itemRepository.findById(slotDTO.getItemId())
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "Вещь с ID " + slotDTO.getItemId() + " не найдена"));
-
-                    // Валидация: категория вещи должна совпадать с типом слота
-                    if (item.getCategory() != slotDTO.getSlotType()) {
-                        throw new IllegalArgumentException(
-                                "Категория вещи '" + item.getCategory() + 
-                                "' не соответствует типу слота '" + slotDTO.getSlotType() + "'");
-                    }
-
-                    OutfitSlot slot = OutfitSlot.builder()
-                            .id(UUID.randomUUID())
-                            .outfit(outfit)
-                            .item(item)
-                            .slotType(slotDTO.getSlotType())
-                            .build();
-
-                    outfit.addSlot(slot);
-                } else {
-                    OutfitSlot slot = OutfitSlot.builder()
-                            .id(UUID.randomUUID())
-                            .outfit(outfit)
-                            .item(null)
-                            .slotType(slotDTO.getSlotType())
-                            .build();
-
-                    outfit.addSlot(slot);
-                }
-            }
-        }
+        applySlotsFromDTO(outfit, outfitDTO.getSlots(), outfit.getUser().getId());
 
         Outfit updatedOutfit = outfitRepository.save(outfit);
-        return convertToDTO(updatedOutfit);
+        return outfitMapper.toDTO(updatedOutfit);
     }
 
     /**
-     * Удаление образа.
+     * Удаляет образ по идентификатору.
+     *
+     * @param outfitId идентификатор образа
      */
     public void deleteOutfit(UUID outfitId) {
         if (!outfitRepository.existsById(outfitId)) {
@@ -185,25 +134,36 @@ public class OutfitService {
         outfitRepository.deleteById(outfitId);
     }
 
-    private OutfitDTO convertToDTO(Outfit outfit) {
-        List<OutfitSlotDTO> slotDTOs = outfit.getSlots().stream()
-                .map(this::convertSlotToDTO)
-                .collect(Collectors.toList());
-
-        return new OutfitDTO(
-                outfit.getId(),
-                outfit.getName(),
-                outfit.getDescription(),
-                slotDTOs
-        );
+    private void applySlotsFromDTO(Outfit outfit, List<OutfitSlotDTO> slotDTOs, UUID userId) {
+        if (slotDTOs == null) {
+            return;
+        }
+        for (OutfitSlotDTO slotDTO : slotDTOs) {
+            Item item = resolveSlotItem(slotDTO, userId);
+            OutfitSlot slot = outfitMapper.toSlotEntity(slotDTO, outfit, item);
+            outfit.addSlot(slot);
+        }
     }
 
-    private OutfitSlotDTO convertSlotToDTO(OutfitSlot slot) {
-        UUID itemId = slot.getItem() != null ? slot.getItem().getId() : null;
-        return new OutfitSlotDTO(
-                slot.getId(),
-                itemId,
-                slot.getSlotType()
-        );
+    private Item resolveSlotItem(OutfitSlotDTO slotDTO, UUID userId) {
+        if (slotDTO.getItemId() == null) {
+            return null;
+        }
+
+        Item item = itemRepository.findById(slotDTO.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Вещь с ID " + slotDTO.getItemId() + " не найдена"));
+
+        if (item.getCategory() != slotDTO.getSlotType()) {
+            throw new IllegalArgumentException(
+                    "Категория вещи '" + item.getCategory() +
+                    "' не соответствует типу слота '" + slotDTO.getSlotType() + "'");
+        }
+
+        if (!item.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Вещь не принадлежит текущему пользователю");
+        }
+
+        return item;
     }
 }

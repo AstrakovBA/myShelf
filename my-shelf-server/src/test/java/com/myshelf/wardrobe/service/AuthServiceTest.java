@@ -6,6 +6,7 @@ import com.myshelf.wardrobe.dto.UserProfileDTO;
 import com.myshelf.wardrobe.dto.UserRegistrationDTO;
 import com.myshelf.wardrobe.entity.User;
 import com.myshelf.wardrobe.entity.UserSettings;
+import com.myshelf.wardrobe.mapper.UserMapper;
 import com.myshelf.wardrobe.repository.UserRepository;
 import com.myshelf.wardrobe.repository.UserSettingsRepository;
 import com.myshelf.wardrobe.security.JwtTokenProvider;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -40,6 +42,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
+
+    @Spy
+    private UserMapper userMapper = new UserMapper();
 
     @InjectMocks
     private AuthService authService;

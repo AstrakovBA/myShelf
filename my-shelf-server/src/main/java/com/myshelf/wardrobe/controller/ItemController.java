@@ -6,7 +6,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,13 +27,20 @@ public class ItemController {
 
     private final ItemService itemService;
 
+    /**
+     * Создаёт контроллер вещей гардероба.
+     *
+     * @param itemService сервис управления вещами
+     */
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
 
     /**
-     * Получение всех вещей текущего пользователя.
-     * GET /api/items
+     * Возвращает список вещей текущего пользователя.
+     *
+     * @param authentication контекст аутентификации
+     * @return список вещей
      */
     @GetMapping
     public ResponseEntity<List<ItemDTO>> getUserItems(Authentication authentication) {
@@ -36,8 +50,10 @@ public class ItemController {
     }
 
     /**
-     * Получение вещи по ID.
-     * GET /api/items/{id}
+     * Возвращает вещь по идентификатору.
+     *
+     * @param id идентификатор вещи
+     * @return данные вещи
      */
     @GetMapping("/{id}")
     public ResponseEntity<ItemDTO> getItemById(@PathVariable UUID id) {
@@ -46,8 +62,11 @@ public class ItemController {
     }
 
     /**
-     * Создание новой вещи.
-     * POST /api/items
+     * Создаёт новую вещь для текущего пользователя.
+     *
+     * @param dto данные вещи
+     * @param authentication контекст аутентификации
+     * @return созданная вещь
      */
     @PostMapping
     public ResponseEntity<ItemDTO> createItem(@Valid @RequestBody ItemDTO dto,
@@ -58,8 +77,11 @@ public class ItemController {
     }
 
     /**
-     * Обновление вещи.
-     * PUT /api/items/{id}
+     * Обновляет существующую вещь.
+     *
+     * @param id идентификатор вещи
+     * @param dto новые данные вещи
+     * @return обновлённая вещь
      */
     @PutMapping("/{id}")
     public ResponseEntity<ItemDTO> updateItem(@PathVariable UUID id,
@@ -69,8 +91,9 @@ public class ItemController {
     }
 
     /**
-     * Удаление вещи.
-     * DELETE /api/items/{id}
+     * Удаляет вещь по идентификатору.
+     *
+     * @param id идентификатор вещи
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable UUID id) {

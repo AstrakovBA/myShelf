@@ -6,7 +6,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,13 +27,20 @@ public class OutfitController {
 
     private final OutfitService outfitService;
 
+    /**
+     * Создаёт контроллер образов.
+     *
+     * @param outfitService сервис управления образами
+     */
     public OutfitController(OutfitService outfitService) {
         this.outfitService = outfitService;
     }
 
     /**
-     * Получение всех образов текущего пользователя.
-     * GET /api/outfits
+     * Возвращает список образов текущего пользователя.
+     *
+     * @param authentication контекст аутентификации
+     * @return список образов
      */
     @GetMapping
     public ResponseEntity<List<OutfitDTO>> getUserOutfits(Authentication authentication) {
@@ -36,8 +50,10 @@ public class OutfitController {
     }
 
     /**
-     * Получение образа по ID.
-     * GET /api/outfits/{id}
+     * Возвращает образ по идентификатору.
+     *
+     * @param id идентификатор образа
+     * @return данные образа со слотами
      */
     @GetMapping("/{id}")
     public ResponseEntity<OutfitDTO> getOutfitById(@PathVariable UUID id) {
@@ -46,8 +62,11 @@ public class OutfitController {
     }
 
     /**
-     * Создание нового образа.
-     * POST /api/outfits
+     * Создаёт новый образ для текущего пользователя.
+     *
+     * @param dto данные образа и слотов
+     * @param authentication контекст аутентификации
+     * @return созданный образ
      */
     @PostMapping
     public ResponseEntity<OutfitDTO> createOutfit(@Valid @RequestBody OutfitDTO dto,
@@ -58,8 +77,11 @@ public class OutfitController {
     }
 
     /**
-     * Обновление образа.
-     * PUT /api/outfits/{id}
+     * Обновляет существующий образ.
+     *
+     * @param id идентификатор образа
+     * @param dto новые данные образа и слотов
+     * @return обновлённый образ
      */
     @PutMapping("/{id}")
     public ResponseEntity<OutfitDTO> updateOutfit(@PathVariable UUID id,
@@ -69,8 +91,9 @@ public class OutfitController {
     }
 
     /**
-     * Удаление образа.
-     * DELETE /api/outfits/{id}
+     * Удаляет образ по идентификатору.
+     *
+     * @param id идентификатор образа
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOutfit(@PathVariable UUID id) {

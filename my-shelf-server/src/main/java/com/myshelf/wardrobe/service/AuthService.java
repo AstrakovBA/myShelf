@@ -6,6 +6,7 @@ import com.myshelf.wardrobe.dto.UserProfileDTO;
 import com.myshelf.wardrobe.dto.UserRegistrationDTO;
 import com.myshelf.wardrobe.entity.User;
 import com.myshelf.wardrobe.entity.UserSettings;
+import com.myshelf.wardrobe.mapper.UserMapper;
 import com.myshelf.wardrobe.repository.UserRepository;
 import com.myshelf.wardrobe.repository.UserSettingsRepository;
 import com.myshelf.wardrobe.security.JwtTokenProvider;
@@ -26,19 +27,34 @@ public class AuthService {
     private final UserSettingsRepository userSettingsRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
 
+    /**
+     * Создаёт сервис аутентификации.
+     *
+     * @param userRepository репозиторий пользователей
+     * @param userSettingsRepository репозиторий настроек
+     * @param passwordEncoder кодировщик паролей
+     * @param jwtTokenProvider провайдер JWT
+     * @param userMapper маппер профиля
+     */
     public AuthService(UserRepository userRepository,
                        UserSettingsRepository userSettingsRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider) {
+                       JwtTokenProvider jwtTokenProvider,
+                       UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userSettingsRepository = userSettingsRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userMapper = userMapper;
     }
 
     /**
-     * Регистрация нового пользователя.
+     * Регистрирует нового пользователя и выдаёт JWT.
+     *
+     * @param registrationDTO email, пароль и отображаемое имя
+     * @return токен и профиль пользователя
      */
     public AuthResponse register(UserRegistrationDTO registrationDTO) {
         if (userRepository.existsByEmail(registrationDTO.getEmail())) {
@@ -62,13 +78,17 @@ public class AuthService {
         userSettingsRepository.save(settings);
 
         String token = jwtTokenProvider.generateToken(savedUser.getId());
-        UserProfileDTO profile = convertToProfileDTO(savedUser);
+        UserProfileDTO profile = userMapper.toDTO(savedUser);
 
         return new AuthResponse(token, profile);
     }
 
     /**
-     * Аутентификация пользователя (вход).
+     * Аутентифицирует пользователя по email и паролю.
+     *
+     * @param email email пользователя
+     * @param password пароль в открытом виде
+     * @return токен и профиль пользователя
      */
     @Transactional(readOnly = true)
     public AuthResponse login(String email, String password) {
@@ -80,13 +100,16 @@ public class AuthService {
         }
 
         String token = jwtTokenProvider.generateToken(user.getId());
-        UserProfileDTO profile = convertToProfileDTO(user);
+        UserProfileDTO profile = userMapper.toDTO(user);
 
         return new AuthResponse(token, profile);
     }
 
     /**
-     * Смена пароля пользователя.
+     * Меняет пароль пользователя после проверки текущего.
+     *
+     * @param userId идентификатор пользователя
+     * @param passwordChangeDTO текущий и новый пароль
      */
     public void changePassword(UUID userId, PasswordChangeDTO passwordChangeDTO) {
         User user = userRepository.findById(userId)
@@ -101,21 +124,15 @@ public class AuthService {
     }
 
     /**
-     * Получение профиля пользователя.
+     * Возвращает профиль пользователя по идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @return DTO профиля
      */
     @Transactional(readOnly = true)
     public UserProfileDTO getProfile(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-        return convertToProfileDTO(user);
-    }
-
-    private UserProfileDTO convertToProfileDTO(User user) {
-        return new UserProfileDTO(
-                user.getId(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getAvatarUrl()
-        );
+        return userMapper.toDTO(user);
     }
 }

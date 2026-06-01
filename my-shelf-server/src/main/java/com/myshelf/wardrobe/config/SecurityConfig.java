@@ -24,10 +24,21 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
+    /**
+     * Создаёт конфигурацию безопасности с JWT-фильтром.
+     *
+     * @param jwtAuthFilter фильтр аутентификации по JWT
+     */
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
+    /**
+     * Настраивает цепочку фильтров безопасности (JWT, stateless-сессии).
+     *
+     * @param http построитель конфигурации HTTP-безопасности
+     * @return настроенная цепочка фильтров
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -44,11 +55,22 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Возвращает BCrypt-кодировщик паролей.
+     *
+     * @return кодировщик паролей
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Предоставляет менеджер аутентификации Spring Security.
+     *
+     * @param authConfig конфигурация аутентификации
+     * @return менеджер аутентификации
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();

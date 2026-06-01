@@ -1,6 +1,7 @@
 package com.myshelf.wardrobe.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -21,6 +22,12 @@ public class JwtTokenProvider {
     private final SecretKey secretKey;
     private final long validityInMilliseconds;
 
+    /**
+     * Инициализирует провайдер с секретом и сроком жизни токена.
+     *
+     * @param secretKeyString секрет для подписи HS256
+     * @param validityInMilliseconds время жизни токена в миллисекундах
+     */
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKeyString,
             @Value("${jwt.expiration-ms:86400000}") long validityInMilliseconds) {
@@ -29,7 +36,10 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Генерация JWT токена для пользователя.
+     * Генерирует JWT для указанного пользователя.
+     *
+     * @param userId идентификатор пользователя
+     * @return подписанный JWT
      */
     public String generateToken(UUID userId) {
         Date now = new Date();
@@ -44,7 +54,10 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Извлечение UUID пользователя из токена.
+     * Извлекает идентификатор пользователя из JWT.
+     *
+     * @param token JWT
+     * @return UUID пользователя из subject токена
      */
     public UUID getUserIdFromToken(String token) {
         Claims claims = getClaims(token);
@@ -52,13 +65,16 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Валидация токена.
+     * Проверяет подпись и срок действия токена.
+     *
+     * @param token JWT
+     * @return {@code true}, если токен валиден и не истёк
      */
     public boolean validateToken(String token) {
         try {
             Claims claims = getClaims(token);
             return !claims.getExpiration().before(new Date());
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
