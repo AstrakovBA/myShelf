@@ -40,3 +40,21 @@
 На уровне ORM используются аннотации валидации **Bean Validation** (`javax.validation` или `jakarta.validation`).
 - `@NotNull` и `@Size` применяются к полям сущностей для обеспечения целостности данных до попадания в БД.
 - Уникальность `email` пользователя гарантируется не только аннотацией `@Column(unique = true)`, но и дублируется ограничением на уровне **PostgreSQL** (как указано в DDL), что защищает от гонок состояний (`race conditions`).
+
+## 7. Identity Map и Persistence Context
+
+Hibernate реализует паттерн **Identity Map** через **Persistence Context**: в рамках одной транзакции повторная загрузка сущности по тому же первичному ключу возвращает тот же managed-экземпляр в памяти (`first == second`). Это обеспечивает консистентность изменений в JVM до `flush`/`commit`.
+
+Подробное описание, демонстрация в коде (`ItemService#getItemWithIdentityCheck`) и интеграционный тест `IdentityMapTest` — в документе [Паттерны персистентности](../07-refactoring/patterns.md).
+
+## 8. Lazy Load и контролируемая загрузка связей
+
+Связи `@OneToMany` у `User` (`items`, `outfits`) объявлены с `FetchType.LAZY`, чтобы не подтягивать весь гардероб при каждой загрузке пользователя. У `Outfit.slots` задан `EAGER`, так как образ без слотов не используется в предметной области. Для `OutfitSlot.item` оставлен `LAZY`.
+
+Точечная подгрузка без N+1:
+
+- `ItemRepository.findByUser_Id` — `@EntityGraph(attributePaths = {"user"})`;
+- `OutfitRepository.findWithSlots` — `LEFT JOIN FETCH o.slots`;
+- `OutfitService.getOutfitDetails` — использует `findWithSlots` перед маппингом в DTO.
+
+Подробнее: [Lazy Load и EntityGraph](../07-refactoring/patterns.md#паттерны-персистентности-lazy-load).

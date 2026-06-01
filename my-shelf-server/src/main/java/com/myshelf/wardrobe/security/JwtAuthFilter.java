@@ -23,6 +23,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * Создаёт фильтр с провайдером JWT.
+     *
+     * @param jwtTokenProvider провайдер генерации и проверки токенов
+     */
     public JwtAuthFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }

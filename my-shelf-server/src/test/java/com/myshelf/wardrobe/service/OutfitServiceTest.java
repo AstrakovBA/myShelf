@@ -3,6 +3,7 @@ package com.myshelf.wardrobe.service;
 import com.myshelf.wardrobe.dto.OutfitDTO;
 import com.myshelf.wardrobe.dto.OutfitSlotDTO;
 import com.myshelf.wardrobe.entity.*;
+import com.myshelf.wardrobe.mapper.OutfitMapper;
 import com.myshelf.wardrobe.repository.ItemRepository;
 import com.myshelf.wardrobe.repository.OutfitRepository;
 import com.myshelf.wardrobe.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -35,6 +37,9 @@ class OutfitServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+
+    @Spy
+    private OutfitMapper outfitMapper = new OutfitMapper();
 
     @InjectMocks
     private OutfitService outfitService;
@@ -274,7 +279,7 @@ class OutfitServiceTest {
     @DisplayName("getOutfitById — успешное получение образа")
     void getOutfitById_success() {
         // Arrange
-        when(outfitRepository.findById(outfitId)).thenReturn(Optional.of(testOutfit));
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.of(testOutfit));
 
         // Act
         OutfitDTO result = outfitService.getOutfitById(outfitId);
@@ -286,21 +291,21 @@ class OutfitServiceTest {
         assertThat(result.getSlots()).hasSize(1);
         assertThat(result.getSlots().get(0).getSlotType()).isEqualTo(Category.TOP);
 
-        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository).findWithSlots(outfitId);
     }
 
     @Test
     @DisplayName("getOutfitById — образ не найден")
     void getOutfitById_notFound() {
         // Arrange
-        when(outfitRepository.findById(outfitId)).thenReturn(Optional.empty());
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThatThrownBy(() -> outfitService.getOutfitById(outfitId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Образ не найден");
 
-        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository).findWithSlots(outfitId);
     }
 
     @Test
@@ -360,7 +365,7 @@ class OutfitServiceTest {
         OutfitSlotDTO slotDTO = new OutfitSlotDTO(null, newItemId, Category.BOTTOM);
         OutfitDTO updateDTO = new OutfitDTO(outfitId, "Updated Outfit", "New description", List.of(slotDTO));
 
-        when(outfitRepository.findById(outfitId)).thenReturn(Optional.of(testOutfit));
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.of(testOutfit));
         when(itemRepository.findById(newItemId)).thenReturn(Optional.of(newItem));
         when(outfitRepository.save(any(Outfit.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -373,7 +378,7 @@ class OutfitServiceTest {
         assertThat(result.getSlots()).hasSize(1);
         assertThat(result.getSlots().get(0).getSlotType()).isEqualTo(Category.BOTTOM);
 
-        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository).findWithSlots(outfitId);
         verify(itemRepository).findById(newItemId);
         verify(outfitRepository).save(testOutfit);
     }
@@ -383,14 +388,14 @@ class OutfitServiceTest {
     void updateOutfit_notFound() {
         // Arrange
         OutfitDTO updateDTO = new OutfitDTO(outfitId, "Updated", null, List.of());
-        when(outfitRepository.findById(outfitId)).thenReturn(Optional.empty());
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, updateDTO))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Образ не найден");
 
-        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository).findWithSlots(outfitId);
         verify(itemRepository, never()).findById(any());
     }
 
@@ -406,7 +411,7 @@ class OutfitServiceTest {
         OutfitSlotDTO mismatchSlotDTO = new OutfitSlotDTO(null, itemId, Category.SHOES);
         OutfitDTO mismatchDTO = new OutfitDTO(outfitId, "Updated", null, List.of(mismatchSlotDTO));
 
-        when(outfitRepository.findById(outfitId)).thenReturn(Optional.of(testOutfit));
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.of(testOutfit));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
 
         // Act & Assert

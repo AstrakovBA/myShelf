@@ -1,7 +1,5 @@
 package com.myshelf.wardrobe.dto;
 
-import java.util.UUID;
-
 /**
  * DTO для ответа при аутентификации и регистрации.
  */

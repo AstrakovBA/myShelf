@@ -5,6 +5,7 @@ import com.myshelf.wardrobe.entity.Category;
 import com.myshelf.wardrobe.entity.Item;
 import com.myshelf.wardrobe.entity.Season;
 import com.myshelf.wardrobe.entity.User;
+import com.myshelf.wardrobe.mapper.ItemMapper;
 import com.myshelf.wardrobe.repository.ItemRepository;
 import com.myshelf.wardrobe.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -32,6 +34,9 @@ class ItemServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Spy
+    private ItemMapper itemMapper = new ItemMapper();
 
     @InjectMocks
     private ItemService itemService;
@@ -161,7 +166,7 @@ class ItemServiceTest {
                 .season(Season.ALL_SEASONS)
                 .build();
 
-        when(itemRepository.findByUserId(userId)).thenReturn(List.of(testItem, item2));
+        when(itemRepository.findByUser_Id(userId)).thenReturn(List.of(testItem, item2));
 
         // Act
         List<ItemDTO> result = itemService.getItemsByUserId(userId);
@@ -172,21 +177,21 @@ class ItemServiceTest {
         assertThat(result).extracting(ItemDTO::getCategory)
                 .containsExactly(Category.TOP, Category.BOTTOM);
 
-        verify(itemRepository).findByUserId(userId);
+        verify(itemRepository).findByUser_Id(userId);
     }
 
     @Test
     @DisplayName("getItemsByUserId — пустой список для пользователя")
     void getItemsByUserId_emptyList() {
         // Arrange
-        when(itemRepository.findByUserId(userId)).thenReturn(List.of());
+        when(itemRepository.findByUser_Id(userId)).thenReturn(List.of());
 
         // Act
         List<ItemDTO> result = itemService.getItemsByUserId(userId);
 
         // Assert
         assertThat(result).isEmpty();
-        verify(itemRepository).findByUserId(userId);
+        verify(itemRepository).findByUser_Id(userId);
     }
 
     // ===== UPDATE =====
@@ -232,6 +237,29 @@ class ItemServiceTest {
 
         verify(itemRepository).findById(itemId);
         verify(itemRepository, never()).save(any());
+    }
+
+    // ===== IDENTITY MAP =====
+
+    @Test
+    @DisplayName("getItemWithIdentityCheck — повторный findById возвращает тот же экземпляр")
+    void getItemWithIdentityCheck_sameInstanceInPersistenceContext() {
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
+
+        boolean sameInstance = itemService.getItemWithIdentityCheck(itemId);
+
+        assertThat(sameInstance).isTrue();
+        verify(itemRepository, times(2)).findById(itemId);
+    }
+
+    @Test
+    @DisplayName("getItemWithIdentityCheck — вещь не найдена")
+    void getItemWithIdentityCheck_itemNotFound() {
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> itemService.getItemWithIdentityCheck(itemId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Вещь не найдена");
     }
 
     // ===== DELETE =====
