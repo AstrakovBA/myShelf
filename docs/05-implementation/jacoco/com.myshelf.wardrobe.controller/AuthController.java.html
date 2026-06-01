@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.controller;
+
+import com.myshelf.wardrobe.dto.AuthResponse;
+import com.myshelf.wardrobe.dto.PasswordChangeDTO;
+import com.myshelf.wardrobe.dto.UserProfileDTO;
+import com.myshelf.wardrobe.dto.UserRegistrationDTO;
+import com.myshelf.wardrobe.service.AuthService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+/**
+ * Контроллер для управления аутентификацией и аккаунтом пользователя.
+ */
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class AuthController {
+
+    private final AuthService authService;
+
+<span class="nc" id="L24">    public AuthController(AuthService authService) {</span>
+<span class="nc" id="L25">        this.authService = authService;</span>
+<span class="nc" id="L26">    }</span>
+
+    /**
+     * Регистрация нового пользователя.
+     * POST /api/auth/register
+     */
+    @PostMapping(&quot;/register&quot;)
+    public ResponseEntity&lt;AuthResponse&gt; register(@Valid @RequestBody UserRegistrationDTO request) {
+<span class="nc" id="L34">        AuthResponse response = authService.register(request);</span>
+<span class="nc" id="L35">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Аутентификация пользователя (вход).
+     * POST /api/auth/login
+     */
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;AuthResponse&gt; login(@RequestParam String email,
+                                              @RequestParam String password) {
+<span class="nc" id="L45">        AuthResponse response = authService.login(email, password);</span>
+<span class="nc" id="L46">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Смена пароля авторизованным пользователем.
+     * POST /api/auth/change-password
+     */
+    @PostMapping(&quot;/change-password&quot;)
+    public ResponseEntity&lt;Void&gt; changePassword(@Valid @RequestBody PasswordChangeDTO dto,
+                                               Authentication authentication) {
+<span class="nc" id="L56">        UUID userId = (UUID) authentication.getPrincipal();</span>
+<span class="nc" id="L57">        authService.changePassword(userId, dto);</span>
+<span class="nc" id="L58">        return ResponseEntity.ok().build();</span>
+    }
+
+    /**
+     * Получение профиля текущего пользователя.
+     * GET /api/auth/profile
+     */
+    @GetMapping(&quot;/profile&quot;)
+    public ResponseEntity&lt;UserProfileDTO&gt; getProfile(Authentication authentication) {
+<span class="nc" id="L67">        UUID userId = (UUID) authentication.getPrincipal();</span>
+<span class="nc" id="L68">        UserProfileDTO profile = authService.getProfile(userId);</span>
+<span class="nc" id="L69">        return ResponseEntity.ok(profile);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

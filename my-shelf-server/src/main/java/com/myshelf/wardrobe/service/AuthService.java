@@ -8,6 +8,7 @@ import com.myshelf.wardrobe.entity.User;
 import com.myshelf.wardrobe.entity.UserSettings;
 import com.myshelf.wardrobe.repository.UserRepository;
 import com.myshelf.wardrobe.repository.UserSettingsRepository;
+import com.myshelf.wardrobe.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +56,7 @@ public class AuthService {
 
         // Создаем настройки пользователя по умолчанию
         UserSettings settings = UserSettings.builder()
-                .id(UUID.randomUUID())
+                .userId(UUID.randomUUID())
                 .user(savedUser)
                 .build();
         userSettingsRepository.save(settings);

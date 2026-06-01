@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">my-shelf-server</a> &gt; <a href="index.source.html" class="el_package">com.myshelf.wardrobe.dto</a> &gt; <span class="el_source">ItemDTO.java</span></div><h1>ItemDTO.java</h1><pre class="source lang-java linenums">package com.myshelf.wardrobe.dto;
+
+import com.myshelf.wardrobe.entity.Category;
+import com.myshelf.wardrobe.entity.Season;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.UUID;
+
+/**
+ * DTO для вещи (предмета гардероба).
+ */
+public class ItemDTO {
+    private UUID id;
+
+    @NotBlank(message = &quot;Название вещи не может быть пустым&quot;)
+    private String name;
+
+    private String description;
+
+    private String imageUrl;
+
+    @NotNull(message = &quot;Категория обязательна&quot;)
+    private Category category;
+
+    private Season season;
+
+<span class="fc" id="L28">    public ItemDTO() {</span>
+<span class="fc" id="L29">    }</span>
+
+<span class="fc" id="L31">    public ItemDTO(UUID id, String name, String description, String imageUrl, Category category, Season season) {</span>
+<span class="fc" id="L32">        this.id = id;</span>
+<span class="fc" id="L33">        this.name = name;</span>
+<span class="fc" id="L34">        this.description = description;</span>
+<span class="fc" id="L35">        this.imageUrl = imageUrl;</span>
+<span class="fc" id="L36">        this.category = category;</span>
+<span class="fc" id="L37">        this.season = season;</span>
+<span class="fc" id="L38">    }</span>
+
+    public UUID getId() {
+<span class="fc" id="L41">        return id;</span>
+    }
+
+    public void setId(UUID id) {
+<span class="fc" id="L45">        this.id = id;</span>
+<span class="fc" id="L46">    }</span>
+
+    public String getName() {
+<span class="fc" id="L49">        return name;</span>
+    }
+
+    public void setName(String name) {
+<span class="fc" id="L53">        this.name = name;</span>
+<span class="fc" id="L54">    }</span>
+
+    public String getDescription() {
+<span class="fc" id="L57">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="fc" id="L61">        this.description = description;</span>
+<span class="fc" id="L62">    }</span>
+
+    public String getImageUrl() {
+<span class="fc" id="L65">        return imageUrl;</span>
+    }
+
+    public void setImageUrl(String imageUrl) {
+<span class="fc" id="L69">        this.imageUrl = imageUrl;</span>
+<span class="fc" id="L70">    }</span>
+
+    public Category getCategory() {
+<span class="fc" id="L73">        return category;</span>
+    }
+
+    public void setCategory(Category category) {
+<span class="fc" id="L77">        this.category = category;</span>
+<span class="fc" id="L78">    }</span>
+
+    public Season getSeason() {
+<span class="fc" id="L81">        return season;</span>
+    }
+
+    public void setSeason(Season season) {
+<span class="fc" id="L85">        this.season = season;</span>
+<span class="fc" id="L86">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

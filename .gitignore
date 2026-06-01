@@ -14,6 +14,9 @@ target/
 # Editors
 .vscode/
 .idea/
+.gigaide/
+.qwen/
+QWEN.md
 
 # Build artifacts
 *.class
