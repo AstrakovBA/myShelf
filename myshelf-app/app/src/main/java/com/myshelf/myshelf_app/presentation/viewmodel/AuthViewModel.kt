@@ -142,10 +142,11 @@ class AuthViewModel(
         _errorMessage.value = null
     }
 
-    /** Временный вход без сервера для навигационных заглушек. */
-    fun loginAsGuest(userId: String = "guest-user") {
-        _currentUser.value = null
-        _authState.value = AuthState.Authenticated(userId)
+    /** Сбрасывает состояние ошибки после показа Snackbar, чтобы можно было повторить вход. */
+    fun clearAuthError() {
         _errorMessage.value = null
+        if (_authState.value is AuthState.Error) {
+            _authState.value = AuthState.Unauthenticated
+        }
     }
 }

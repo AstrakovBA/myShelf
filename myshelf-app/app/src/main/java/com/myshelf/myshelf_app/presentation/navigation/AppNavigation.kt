@@ -51,16 +51,8 @@ fun AppNavigation(
                 }
             }
 
-            is AuthState.Loading -> Unit
-
-            is AuthState.Error -> {
-                if (navController.currentDestination?.route != Screen.Login.route) {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(navController.graph.id) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            }
+            is AuthState.Loading,
+            is AuthState.Error -> Unit
         }
     }
 
@@ -71,9 +63,7 @@ fun AppNavigation(
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
-                onLoginSuccess = {
-                    authViewModel.loginAsGuest()
-                },
+                viewModel = authViewModel,
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
                 }
@@ -82,9 +72,7 @@ fun AppNavigation(
 
         composable(Screen.Register.route) {
             RegisterScreen(
-                onRegisterSuccess = {
-                    authViewModel.loginAsGuest()
-                },
+                viewModel = authViewModel,
                 onNavigateToLogin = {
                     navController.popBackStack()
                 }
