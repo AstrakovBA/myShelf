@@ -27,4 +27,7 @@ object Constants {
     const val DS_ONBOARDING_COMPLETED = "ds_onboarding_completed"
     const val DS_LAST_SYNC_TIMESTAMP = "ds_last_sync_timestamp"
     const val DS_OFFLINE_MODE_ENABLED = "ds_offline_mode_enabled"
+    const val DS_LANGUAGE = "ds_language"
+
+    const val DEFAULT_LANGUAGE = "ru"
 }

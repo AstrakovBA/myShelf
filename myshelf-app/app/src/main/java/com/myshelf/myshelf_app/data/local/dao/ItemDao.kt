@@ -27,4 +27,7 @@ interface ItemDao {
 
     @Query("DELETE FROM items WHERE id = :itemId")
     suspend fun deleteItemById(itemId: String)
+
+    @Query("DELETE FROM items WHERE user_id = :userId")
+    suspend fun deleteAllByUser(userId: String)
 }

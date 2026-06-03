@@ -16,7 +16,10 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["user_id"])]
+    indices = [
+        Index(value = ["user_id"]),
+        Index(value = ["is_dirty"])
+    ]
 )
 data class OutfitLocal(
     @PrimaryKey
@@ -36,5 +39,11 @@ data class OutfitLocal(
     val season: String? = null,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+
+    @ColumnInfo(name = "is_dirty")
+    val isDirty: Boolean = false,
+
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long = System.currentTimeMillis()
 )

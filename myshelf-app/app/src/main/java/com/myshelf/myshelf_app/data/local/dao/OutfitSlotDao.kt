@@ -20,4 +20,7 @@ interface OutfitSlotDao {
 
     @Query("DELETE FROM outfit_slots WHERE id = :slotId")
     suspend fun deleteById(slotId: String)
+
+    @Query("SELECT * FROM outfit_slots WHERE outfit_id = :outfitId")
+    suspend fun getSlotsByOutfitId(outfitId: String): List<OutfitSlotLocal>
 }

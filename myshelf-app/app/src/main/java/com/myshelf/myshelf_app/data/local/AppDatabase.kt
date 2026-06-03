@@ -20,7 +20,7 @@ import com.myshelf.myshelf_app.data.local.entity.UserLocal
         OutfitLocal::class,
         OutfitSlotLocal::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -50,7 +50,9 @@ abstract class AppDatabase : RoomDatabase() {
                 context,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).build()
+            )
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
         }
     }
 }

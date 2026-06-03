@@ -66,6 +66,8 @@ object ApiCallHandler {
         throw ApiException(response.code(), mapHttpError(response), response.errorBody()?.string())
     }
 
+    fun <T> httpErrorMessage(response: Response<T>): String = mapHttpError(response)
+
     private fun <T> mapHttpError(response: Response<T>): String {
         val serverMessage = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
         val baseMessage = when (response.code()) {
