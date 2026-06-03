@@ -24,6 +24,9 @@ class ItemsViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
@@ -111,7 +114,7 @@ class ItemsViewModel(
     fun syncItems() {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _isRefreshing.value = true
                 _errorMessage.value = null
 
                 when (val result = repository.syncItemsWithServer(userId)) {
@@ -121,7 +124,7 @@ class ItemsViewModel(
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
             } finally {
-                _isLoading.value = false
+                _isRefreshing.value = false
             }
         }
     }

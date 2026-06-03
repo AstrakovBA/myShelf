@@ -22,12 +22,15 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.presentation.navigation.Screen
 import com.myshelf.myshelf_app.presentation.screens.ItemsListScreen
 import com.myshelf.myshelf_app.presentation.screens.OutfitsListScreen
 import com.myshelf.myshelf_app.presentation.screens.SettingsScreen
+import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
+import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 private data class BottomNavItem(
     val screen: Screen,
@@ -38,6 +41,7 @@ private data class BottomNavItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    viewModelFactory: ViewModelFactory,
     onNavigateToItemDetails: (String) -> Unit,
     onNavigateToCreateItem: () -> Unit,
     onNavigateToOutfitConstructor: () -> Unit,
@@ -66,8 +70,9 @@ fun MainScreen(
         )
     )
 
+    val showMainTopBar = currentRoute != Screen.ItemsList.route
+
     val topBarTitle = when (currentRoute) {
-        Screen.ItemsList.route -> stringResource(R.string.nav_items)
         Screen.OutfitsList.route -> stringResource(R.string.nav_outfits)
         Screen.Settings.route -> stringResource(R.string.nav_settings)
         else -> stringResource(R.string.app_name)
@@ -76,13 +81,15 @@ fun MainScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text(topBarTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            if (showMainTopBar) {
+                TopAppBar(
+                    title = { Text(topBarTitle) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
-            )
+            }
         },
         bottomBar = {
             NavigationBar {
@@ -112,7 +119,9 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.ItemsList.route) {
+                val itemsViewModel: ItemsViewModel = viewModel(factory = viewModelFactory)
                 ItemsListScreen(
+                    viewModel = itemsViewModel,
                     onItemClick = onNavigateToItemDetails,
                     onCreateItemClick = onNavigateToCreateItem
                 )

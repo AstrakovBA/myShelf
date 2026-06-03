@@ -81,6 +81,7 @@ fun AppNavigation(
 
         composable(Screen.Home.route) {
             MainScreen(
+                viewModelFactory = viewModelFactory,
                 onNavigateToItemDetails = { itemId ->
                     navController.navigate(Screen.ItemDetails.createRoute(itemId))
                 },

@@ -3,4 +3,10 @@
     <string name="nav_items">Мои вещи</string>
     <string name="nav_outfits">Мои образы</string>
     <string name="nav_settings">Настройки</string>
+    <string name="add_item">Добавить вещь</string>
+    <string name="delete_item">Удалить</string>
+    <string name="search_items_hint">Поиск по названию…</string>
+    <string name="filter_all">Все</string>
+    <string name="items_empty_title">Нет вещей</string>
+    <string name="items_empty_subtitle">Добавьте первую вещь в гардероб</string>
 </resources>
