@@ -5,43 +5,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.myshelf.myshelf_app.ui.theme.MyShelf_AppTheme
+import com.myshelf.myshelf_app.presentation.navigation.AppNavigation
+import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
+import com.myshelf.myshelf_app.ui.theme.MyShelfTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModelFactory by lazy {
+        ViewModelFactory(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyShelf_AppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            MyShelfTheme {
+                AppNavigation(
+                    viewModelFactory = viewModelFactory,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyShelf_AppTheme {
-        Greeting("Android")
     }
 }

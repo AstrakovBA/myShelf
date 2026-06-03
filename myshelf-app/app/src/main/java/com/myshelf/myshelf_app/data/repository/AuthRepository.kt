@@ -115,6 +115,13 @@ class AuthRepository(
 
     fun isLoggedIn(): Boolean = tokenManager.isLoggedIn()
 
+    fun getUserId(): String? = tokenManager.getUserId()
+
+    suspend fun getCurrentUser(): UserLocal? {
+        val userId = tokenManager.getUserId() ?: return null
+        return userDao.getUserById(userId)
+    }
+
     fun logout() {
         tokenManager.clearSession()
     }

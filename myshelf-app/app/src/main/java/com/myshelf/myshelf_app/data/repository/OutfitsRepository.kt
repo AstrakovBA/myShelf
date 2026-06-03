@@ -19,7 +19,10 @@ import com.myshelf.myshelf_app.data.remote.authorizationHeader
 import com.myshelf.myshelf_app.data.remote.toResultUnit
 import com.myshelf.myshelf_app.util.Resource
 import com.myshelf.myshelf_app.util.Result
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.IOException
 
 class OutfitsRepository(
@@ -35,6 +38,20 @@ class OutfitsRepository(
 
     fun getOutfitWithSlotsFlow(outfitId: String): Flow<OutfitWithSlots> {
         return outfitDao.getOutfitWithSlots(outfitId)
+    }
+
+    fun getOutfitsWithSlotsFlow(userId: String): Flow<List<OutfitWithSlots>> {
+        return flow {
+            outfitDao.getOutfitsByUser(userId).collect { outfits ->
+                val withSlots = outfits.map { outfit ->
+                    OutfitWithSlots(
+                        outfit = outfit,
+                        slots = outfitSlotDao.getSlotsByOutfitId(outfit.id)
+                    )
+                }
+                emit(withSlots)
+            }
+        }.flowOn(Dispatchers.IO)
     }
 
     suspend fun createOutfit(
@@ -110,6 +127,46 @@ class OutfitsRepository(
             Result.Error(e.message ?: "Ошибка API", e)
         } catch (e: Exception) {
             Result.Error(e.localizedMessage ?: "Ошибка синхронизации", e)
+        }
+    }
+
+    suspend fun updateOutfit(
+        outfitId: String,
+        name: String,
+        description: String?,
+        season: String?,
+        slots: List<OutfitSlotLocal>
+    ): Result<Unit> {
+        return try {
+            val existing = outfitDao.getOutfitById(outfitId)
+                ?: return Result.Error("Образ не найден")
+
+            val updatedOutfit = existing.copy(
+                name = name,
+                description = description,
+                season = season,
+                isDirty = true,
+                updatedAt = System.currentTimeMillis()
+            )
+            val updatedSlots = slots.map { slot ->
+                slot.copy(
+                    outfitId = outfitId,
+                    id = slot.id.ifBlank { OutfitMapper.generateSlotId() }
+                )
+            }
+
+            outfitDao.upsertOutfit(updatedOutfit)
+            outfitSlotDao.deleteByOutfitId(outfitId)
+            outfitSlotDao.insertAll(updatedSlots)
+
+            if (!tokenManager.isLoggedIn()) {
+                return Result.Success(Unit)
+            }
+
+            runCatching { uploadDirtyOutfits(listOf(updatedOutfit to updatedSlots)) }
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e.localizedMessage ?: "Не удалось обновить образ", e)
         }
     }
 

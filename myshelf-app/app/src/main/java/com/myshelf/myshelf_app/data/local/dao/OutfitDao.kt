@@ -28,6 +28,9 @@ interface OutfitDao {
     @Query("DELETE FROM outfits WHERE id = :outfitId")
     suspend fun deleteOutfitById(outfitId: String)
 
+    @Query("SELECT * FROM outfits WHERE id = :outfitId LIMIT 1")
+    suspend fun getOutfitById(outfitId: String): OutfitLocal?
+
     @Query("SELECT * FROM outfits WHERE is_dirty = 1")
     suspend fun getDirtyOutfits(): List<OutfitLocal>
 

@@ -3,7 +3,6 @@ package com.myshelf.myshelf_app.data.repository
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -23,13 +22,25 @@ class SettingsRepository(
 
     suspend fun saveTheme(isDark: Boolean) {
         dataStore.edit { preferences ->
-            preferences[KEY_DARK_THEME] = isDark
+            preferences[KEY_THEME_MODE] = if (isDark) THEME_DARK else THEME_LIGHT
+        }
+    }
+
+    suspend fun saveThemeMode(mode: String) {
+        dataStore.edit { preferences ->
+            preferences[KEY_THEME_MODE] = mode
         }
     }
 
     fun getThemeFlow(): Flow<Boolean> {
         return dataStore.data.map { preferences ->
-            preferences[KEY_DARK_THEME] ?: false
+            preferences[KEY_THEME_MODE] == THEME_DARK
+        }
+    }
+
+    fun getThemeModeFlow(): Flow<String> {
+        return dataStore.data.map { preferences ->
+            preferences[KEY_THEME_MODE] ?: THEME_SYSTEM
         }
     }
 
@@ -46,7 +57,11 @@ class SettingsRepository(
     }
 
     companion object {
-        private val KEY_DARK_THEME = booleanPreferencesKey(Constants.DS_THEME_MODE)
+        private val KEY_THEME_MODE = stringPreferencesKey(Constants.DS_THEME_MODE)
         private val KEY_LANGUAGE = stringPreferencesKey(Constants.DS_LANGUAGE)
+
+        const val THEME_LIGHT = "light"
+        const val THEME_DARK = "dark"
+        const val THEME_SYSTEM = "system"
     }
 }

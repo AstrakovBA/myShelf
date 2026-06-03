@@ -34,6 +34,17 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
+fun MyShelfTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
+) = MyShelf_AppTheme(
+    darkTheme = darkTheme,
+    dynamicColor = dynamicColor,
+    content = content
+)
+
+@Composable
 fun MyShelf_AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
