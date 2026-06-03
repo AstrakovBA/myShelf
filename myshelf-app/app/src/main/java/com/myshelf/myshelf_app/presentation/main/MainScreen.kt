@@ -22,7 +22,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.presentation.navigation.Screen
@@ -42,6 +41,7 @@ private data class BottomNavItem(
 @Composable
 fun MainScreen(
     viewModelFactory: ViewModelFactory,
+    itemsViewModel: ItemsViewModel,
     onNavigateToItemDetails: (String) -> Unit,
     onNavigateToCreateItem: () -> Unit,
     onNavigateToOutfitConstructor: () -> Unit,
@@ -119,7 +119,6 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.ItemsList.route) {
-                val itemsViewModel: ItemsViewModel = viewModel(factory = viewModelFactory)
                 ItemsListScreen(
                     viewModel = itemsViewModel,
                     onItemClick = onNavigateToItemDetails,

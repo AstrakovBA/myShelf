@@ -13,10 +13,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.myshelf.myshelf_app.presentation.auth.AuthState
 import com.myshelf.myshelf_app.presentation.main.MainScreen
+import androidx.compose.runtime.remember
+import com.myshelf.myshelf_app.presentation.screens.CreateItemScreen
 import com.myshelf.myshelf_app.presentation.screens.LoginScreen
 import com.myshelf.myshelf_app.presentation.screens.PlaceholderScreen
 import com.myshelf.myshelf_app.presentation.screens.RegisterScreen
 import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
+import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 @Composable
@@ -79,9 +82,11 @@ fun AppNavigation(
             )
         }
 
-        composable(Screen.Home.route) {
+        composable(Screen.Home.route) { homeEntry ->
+            val itemsViewModel: ItemsViewModel = viewModel(homeEntry, factory = viewModelFactory)
             MainScreen(
                 viewModelFactory = viewModelFactory,
+                itemsViewModel = itemsViewModel,
                 onNavigateToItemDetails = { itemId ->
                     navController.navigate(Screen.ItemDetails.createRoute(itemId))
                 },
@@ -113,9 +118,13 @@ fun AppNavigation(
         }
 
         composable(Screen.CreateItem.route) {
-            PlaceholderScreen(
-                title = "Добавить вещь",
-                subtitle = "Форма создания (скоро)"
+            val homeEntry = remember(navController) {
+                navController.getBackStackEntry(Screen.Home.route)
+            }
+            val itemsViewModel: ItemsViewModel = viewModel(homeEntry, factory = viewModelFactory)
+            CreateItemScreen(
+                viewModel = itemsViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

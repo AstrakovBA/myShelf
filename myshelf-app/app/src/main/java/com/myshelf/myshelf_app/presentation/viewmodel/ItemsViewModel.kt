@@ -27,6 +27,12 @@ class ItemsViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    private val _isSaving = MutableStateFlow(false)
+    val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
+
+    private val _itemSaved = MutableStateFlow(false)
+    val itemSaved: StateFlow<Boolean> = _itemSaved.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
@@ -67,7 +73,8 @@ class ItemsViewModel(
     ) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _isSaving.value = true
+                _itemSaved.value = false
                 _errorMessage.value = null
 
                 val item = ItemLocal(
@@ -82,15 +89,23 @@ class ItemsViewModel(
                 )
 
                 when (val result = repository.createItem(item)) {
-                    is Result.Success -> _errorMessage.value = null
+                    is Result.Success -> {
+                        _errorMessage.value = null
+                        _itemSaved.value = true
+                    }
+
                     is Result.Error -> _errorMessage.value = result.message
                 }
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
             } finally {
-                _isLoading.value = false
+                _isSaving.value = false
             }
         }
+    }
+
+    fun consumeItemSaved() {
+        _itemSaved.value = false
     }
 
     fun deleteItem(itemId: String) {

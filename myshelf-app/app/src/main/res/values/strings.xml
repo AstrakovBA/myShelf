@@ -9,4 +9,17 @@
     <string name="filter_all">Все</string>
     <string name="items_empty_title">Нет вещей</string>
     <string name="items_empty_subtitle">Добавьте первую вещь в гардероб</string>
+    <string name="create_item_title">Добавить вещь</string>
+    <string name="back">Назад</string>
+    <string name="save">Сохранить</string>
+    <string name="save_item">Сохранить вещь</string>
+    <string name="item_name_label">Название*</string>
+    <string name="item_description_label">Описание</string>
+    <string name="item_category_label">Категория*</string>
+    <string name="item_season_label">Сезон</string>
+    <string name="item_season_optional">Необязательно</string>
+    <string name="item_season_none">Не указан</string>
+    <string name="item_image_url_label">Ссылка на изображение</string>
+    <string name="item_image_placeholder">Фото вещи</string>
+    <string name="add_photo">Добавить фото</string>
 </resources>
