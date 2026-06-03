@@ -27,6 +27,12 @@ class OutfitsViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _isSaving = MutableStateFlow(false)
+    val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
+
+    private val _outfitSaved = MutableStateFlow(false)
+    val outfitSaved: StateFlow<Boolean> = _outfitSaved.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
@@ -57,15 +63,17 @@ class OutfitsViewModel(
         name: String,
         description: String?,
         season: String?,
-        slots: List<OutfitSlotLocal>
+        slots: List<OutfitSlotLocal>,
+        outfitId: String = OutfitMapper.generateLocalId()
     ) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _isSaving.value = true
+                _outfitSaved.value = false
                 _errorMessage.value = null
 
                 val outfit = OutfitLocal(
-                    id = OutfitMapper.generateLocalId(),
+                    id = outfitId,
                     userId = userId,
                     name = name,
                     description = description,
@@ -73,16 +81,28 @@ class OutfitsViewModel(
                     isDirty = true
                 )
 
-                when (val result = repository.createOutfit(outfit, slots)) {
-                    is Result.Success -> _errorMessage.value = null
+                val slotsWithOutfitId = slots.map { slot ->
+                    slot.copy(outfitId = outfitId)
+                }
+
+                when (val result = repository.createOutfit(outfit, slotsWithOutfitId)) {
+                    is Result.Success -> {
+                        _errorMessage.value = null
+                        _outfitSaved.value = true
+                    }
+
                     is Result.Error -> _errorMessage.value = result.message
                 }
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
             } finally {
-                _isLoading.value = false
+                _isSaving.value = false
             }
         }
+    }
+
+    fun consumeOutfitSaved() {
+        _outfitSaved.value = false
     }
 
     fun deleteOutfit(outfitId: String) {

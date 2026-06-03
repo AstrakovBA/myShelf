@@ -15,11 +15,13 @@ import com.myshelf.myshelf_app.presentation.auth.AuthState
 import com.myshelf.myshelf_app.presentation.main.MainScreen
 import androidx.compose.runtime.remember
 import com.myshelf.myshelf_app.presentation.screens.CreateItemScreen
+import com.myshelf.myshelf_app.presentation.screens.OutfitConstructorScreen
 import com.myshelf.myshelf_app.presentation.screens.LoginScreen
 import com.myshelf.myshelf_app.presentation.screens.PlaceholderScreen
 import com.myshelf.myshelf_app.presentation.screens.RegisterScreen
 import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
+import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 @Composable
@@ -84,9 +86,11 @@ fun AppNavigation(
 
         composable(Screen.Home.route) { homeEntry ->
             val itemsViewModel: ItemsViewModel = viewModel(homeEntry, factory = viewModelFactory)
+            val outfitsViewModel: OutfitsViewModel = viewModel(homeEntry, factory = viewModelFactory)
             MainScreen(
                 viewModelFactory = viewModelFactory,
                 itemsViewModel = itemsViewModel,
+                outfitsViewModel = outfitsViewModel,
                 onNavigateToItemDetails = { itemId ->
                     navController.navigate(Screen.ItemDetails.createRoute(itemId))
                 },
@@ -129,9 +133,15 @@ fun AppNavigation(
         }
 
         composable(Screen.OutfitConstructor.route) {
-            PlaceholderScreen(
-                title = "Конструктор образа",
-                subtitle = "Сборка образа (скоро)"
+            val homeEntry = remember(navController) {
+                navController.getBackStackEntry(Screen.Home.route)
+            }
+            val outfitsViewModel: OutfitsViewModel = viewModel(homeEntry, factory = viewModelFactory)
+            val itemsViewModel: ItemsViewModel = viewModel(homeEntry, factory = viewModelFactory)
+            OutfitConstructorScreen(
+                outfitsViewModel = outfitsViewModel,
+                itemsViewModel = itemsViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

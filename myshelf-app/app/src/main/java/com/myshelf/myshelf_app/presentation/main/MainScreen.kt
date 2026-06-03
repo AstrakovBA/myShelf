@@ -29,6 +29,7 @@ import com.myshelf.myshelf_app.presentation.screens.ItemsListScreen
 import com.myshelf.myshelf_app.presentation.screens.OutfitsListScreen
 import com.myshelf.myshelf_app.presentation.screens.SettingsScreen
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
+import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 private data class BottomNavItem(
@@ -42,6 +43,7 @@ private data class BottomNavItem(
 fun MainScreen(
     viewModelFactory: ViewModelFactory,
     itemsViewModel: ItemsViewModel,
+    outfitsViewModel: OutfitsViewModel,
     onNavigateToItemDetails: (String) -> Unit,
     onNavigateToCreateItem: () -> Unit,
     onNavigateToOutfitConstructor: () -> Unit,
@@ -127,6 +129,7 @@ fun MainScreen(
             }
             composable(Screen.OutfitsList.route) {
                 OutfitsListScreen(
+                    viewModel = outfitsViewModel,
                     onCreateOutfitClick = onNavigateToOutfitConstructor
                 )
             }

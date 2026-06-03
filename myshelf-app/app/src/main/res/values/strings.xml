@@ -22,4 +22,15 @@
     <string name="item_image_url_label">Ссылка на изображение</string>
     <string name="item_image_placeholder">Фото вещи</string>
     <string name="add_photo">Добавить фото</string>
+    <string name="outfit_constructor_title">Конструктор образа</string>
+    <string name="outfit_name_label">Название образа*</string>
+    <string name="outfit_description_label">Описание</string>
+    <string name="outfit_slots_title">Состав образа</string>
+    <string name="save_outfit">Сохранить образ</string>
+    <string name="add_outfit">Создать образ</string>
+    <string name="select_item_for_slot">Выбрать вещь</string>
+    <string name="clear_slot">Очистить слот</string>
+    <string name="select_item_dialog_title">Выбор: %1$s</string>
+    <string name="select_item_dialog_empty">Нет вещей в этой категории. Добавьте вещь в гардероб.</string>
+    <string name="cancel">Отмена</string>
 </resources>
