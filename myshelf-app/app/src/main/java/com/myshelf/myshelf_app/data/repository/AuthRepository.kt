@@ -13,7 +13,9 @@ import com.myshelf.myshelf_app.data.remote.dto.UserProfileRequest
 import com.myshelf.myshelf_app.data.remote.dto.UserRegistrationRequest
 import com.myshelf.myshelf_app.data.remote.login
 import com.myshelf.myshelf_app.data.remote.toResultUnit
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.util.Result
+import com.myshelf.myshelf_app.util.StringResources
 
 class AuthRepository(
     private val apiService: WardrobeApiService,
@@ -39,7 +41,7 @@ class AuthRepository(
 
             is com.myshelf.myshelf_app.util.Resource.Error -> Result.Error(resource.message)
 
-            else -> Result.Error("Ошибка регистрации")
+            else -> Result.Error(StringResources.getString(R.string.error_register))
         }
     }
 
@@ -53,13 +55,13 @@ class AuthRepository(
 
             is com.myshelf.myshelf_app.util.Resource.Error -> Result.Error(resource.message)
 
-            else -> Result.Error("Ошибка входа")
+            else -> Result.Error(StringResources.getString(R.string.error_login))
         }
     }
 
     suspend fun updateProfile(displayName: String?, avatarUrl: String?): Result<Unit> {
         if (!tokenManager.isLoggedIn()) {
-            return Result.Error("Требуется авторизация")
+            return Result.Error(StringResources.getString(R.string.error_auth_required))
         }
 
         return try {
@@ -90,16 +92,16 @@ class AuthRepository(
 
                 is com.myshelf.myshelf_app.util.Resource.Error -> Result.Error(resource.message)
 
-                else -> Result.Error("Не удалось обновить профиль")
+                else -> Result.Error(StringResources.getString(R.string.error_update_profile))
             }
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось обновить профиль", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_update_profile), e)
         }
     }
 
     suspend fun changePassword(oldPass: String, newPass: String): Result<Unit> {
         if (!tokenManager.isLoggedIn()) {
-            return Result.Error("Требуется авторизация")
+            return Result.Error(StringResources.getString(R.string.error_auth_required))
         }
 
         return try {
@@ -109,7 +111,7 @@ class AuthRepository(
                 apiService.changePassword(authHeader, request)
             }.toResultUnit()
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось сменить пароль", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_change_password), e)
         }
     }
 

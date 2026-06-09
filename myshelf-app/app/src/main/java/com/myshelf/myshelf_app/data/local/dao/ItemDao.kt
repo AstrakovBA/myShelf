@@ -25,6 +25,9 @@ interface ItemDao {
     @Query("SELECT * FROM items WHERE id = :itemId LIMIT 1")
     suspend fun getItemById(itemId: String): ItemLocal?
 
+    @Query("SELECT * FROM items WHERE id = :itemId LIMIT 1")
+    fun observeItemById(itemId: String): Flow<ItemLocal?>
+
     @Query("DELETE FROM items WHERE id = :itemId")
     suspend fun deleteItemById(itemId: String)
 

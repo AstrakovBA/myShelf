@@ -8,7 +8,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.myshelf.myshelf_app.util.Constants
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
     name = Constants.DATASTORE_NAME
@@ -54,6 +56,14 @@ class SettingsRepository(
         return dataStore.data.map { preferences ->
             preferences[KEY_LANGUAGE] ?: Constants.DEFAULT_LANGUAGE
         }
+    }
+
+    suspend fun getLanguage(): String {
+        return dataStore.data.first()[KEY_LANGUAGE] ?: Constants.DEFAULT_LANGUAGE
+    }
+
+    fun getLanguageBlocking(): String {
+        return runBlocking { getLanguage() }
     }
 
     companion object {

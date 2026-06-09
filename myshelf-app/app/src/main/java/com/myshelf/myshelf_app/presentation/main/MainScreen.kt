@@ -6,14 +6,10 @@ import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -28,8 +24,10 @@ import com.myshelf.myshelf_app.presentation.navigation.Screen
 import com.myshelf.myshelf_app.presentation.screens.ItemsListScreen
 import com.myshelf.myshelf_app.presentation.screens.OutfitsListScreen
 import com.myshelf.myshelf_app.presentation.screens.SettingsScreen
+import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
+import com.myshelf.myshelf_app.presentation.viewmodel.SettingsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 private data class BottomNavItem(
@@ -38,16 +36,21 @@ private data class BottomNavItem(
     val icon: @Composable () -> Unit
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     viewModelFactory: ViewModelFactory,
     itemsViewModel: ItemsViewModel,
     outfitsViewModel: OutfitsViewModel,
+    settingsViewModel: SettingsViewModel,
+    authViewModel: AuthViewModel,
+    appVersion: String,
     onNavigateToItemDetails: (String) -> Unit,
     onNavigateToCreateItem: () -> Unit,
+    onNavigateToEditItem: (String) -> Unit = {},
     onNavigateToOutfitConstructor: () -> Unit,
+    onNavigateToEditOutfit: (String) -> Unit = {},
     onNavigateToProfile: () -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val bottomNavController = rememberNavController()
@@ -72,27 +75,8 @@ fun MainScreen(
         )
     )
 
-    val showMainTopBar = currentRoute != Screen.ItemsList.route
-
-    val topBarTitle = when (currentRoute) {
-        Screen.OutfitsList.route -> stringResource(R.string.nav_outfits)
-        Screen.Settings.route -> stringResource(R.string.nav_settings)
-        else -> stringResource(R.string.app_name)
-    }
-
     Scaffold(
         modifier = modifier,
-        topBar = {
-            if (showMainTopBar) {
-                TopAppBar(
-                    title = { Text(topBarTitle) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-            }
-        },
         bottomBar = {
             NavigationBar {
                 bottomNavItems.forEach { item ->
@@ -130,12 +114,18 @@ fun MainScreen(
             composable(Screen.OutfitsList.route) {
                 OutfitsListScreen(
                     viewModel = outfitsViewModel,
-                    onCreateOutfitClick = onNavigateToOutfitConstructor
+                    itemsViewModel = itemsViewModel,
+                    onCreateOutfitClick = onNavigateToOutfitConstructor,
+                    onEditOutfitClick = onNavigateToEditOutfit
                 )
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(
-                    onProfileClick = onNavigateToProfile
+                    settingsViewModel = settingsViewModel,
+                    authViewModel = authViewModel,
+                    appVersion = appVersion,
+                    onProfileClick = onNavigateToProfile,
+                    onLogout = onLogout
                 )
             }
         }

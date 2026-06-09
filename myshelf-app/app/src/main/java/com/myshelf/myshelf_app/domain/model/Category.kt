@@ -1,12 +1,23 @@
 package com.myshelf.myshelf_app.domain.model
 
-enum class Category(val displayName: String) {
-    HEADWEAR("Головной убор"),
-    TOP("Верх"),
-    BOTTOM("Низ"),
-    SHOES("Обувь"),
-    OUTERWEAR("Верхняя одежда"),
-    ACCESSORIES("Аксессуары");
+import android.content.Context
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.myshelf.myshelf_app.R
+
+enum class Category(@StringRes val labelRes: Int) {
+    HEADWEAR(R.string.category_headwear),
+    TOP(R.string.category_top),
+    BOTTOM(R.string.category_bottom),
+    SHOES(R.string.category_shoes),
+    OUTERWEAR(R.string.category_outerwear),
+    ACCESSORIES(R.string.category_accessories);
+
+    @Composable
+    fun localizedName(): String = stringResource(labelRes)
+
+    fun getLocalizedName(context: Context): String = context.getString(labelRes)
 
     companion object {
         fun fromString(value: String?): Category? {
@@ -14,8 +25,8 @@ enum class Category(val displayName: String) {
             return entries.find { it.name.equals(value, ignoreCase = true) }
         }
 
-        fun displayNameFor(value: String?): String {
-            return fromString(value)?.displayName ?: value.orEmpty()
+        fun displayNameFor(value: String?, context: Context): String {
+            return fromString(value)?.getLocalizedName(context) ?: value.orEmpty()
         }
     }
 }

@@ -16,11 +16,23 @@ sealed class Screen(val route: String) {
         fun createRoute(itemId: String): String = "item_details/$itemId"
     }
 
-    data object CreateItem : Screen("create_item")
+    data object CreateItem : Screen("create_item") {
+        const val ROUTE_WITH_ID = "create_item/{itemId}"
+        const val ARG_ITEM_ID = "itemId"
+
+        fun createRoute(itemId: String? = null): String =
+            itemId?.let { "create_item/$it" } ?: "create_item"
+    }
 
     data object OutfitsList : Screen("outfits_list")
 
-    data object OutfitConstructor : Screen("outfit_constructor")
+    data object OutfitConstructor : Screen("outfit_constructor") {
+        const val ROUTE_WITH_ID = "outfit_constructor/{outfitId}"
+        const val ARG_OUTFIT_ID = "outfitId"
+
+        fun createRoute(outfitId: String? = null): String =
+            outfitId?.let { "outfit_constructor/$it" } ?: "outfit_constructor"
+    }
 
     data object Settings : Screen("settings")
 

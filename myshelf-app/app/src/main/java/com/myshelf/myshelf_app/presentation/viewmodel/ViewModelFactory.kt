@@ -40,8 +40,13 @@ class ViewModelFactory(
             }
 
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> {
+                val id = userId ?: RetrofitClient.getTokenManager(appContext).getUserId().orEmpty()
                 SettingsViewModel(
-                    repository = RepositoryProvider.settingsRepository(appContext)
+                    settingsRepository = RepositoryProvider.settingsRepository(appContext),
+                    itemsRepository = RepositoryProvider.itemsRepository(appContext),
+                    outfitsRepository = RepositoryProvider.outfitsRepository(appContext),
+                    authRepository = RepositoryProvider.authRepository(appContext),
+                    userId = id
                 ) as T
             }
 

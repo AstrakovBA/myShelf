@@ -47,27 +47,50 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.myshelf.myshelf_app.R
+import com.myshelf.myshelf_app.data.local.entity.ItemLocal
 import com.myshelf.myshelf_app.domain.model.Category
 import com.myshelf.myshelf_app.domain.model.Season
 import com.myshelf.myshelf_app.presentation.item.ItemFormState
+import com.myshelf.myshelf_app.presentation.item.ItemUpdates
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateItemScreen(
     viewModel: ItemsViewModel,
+    itemId: String? = null,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isEditMode = itemId != null
     val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
     val itemSaved by viewModel.itemSaved.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    var formState by remember { mutableStateOf(ItemFormState()) }
+    var formState by remember(itemId) { mutableStateOf(ItemFormState()) }
+    var isFormLoading by remember(itemId) { mutableStateOf(isEditMode) }
+
+    val nameRequiredError = stringResource(R.string.error_item_name_required)
+    val categoryRequiredError = stringResource(R.string.error_category_required)
 
     var categoryMenuExpanded by remember { mutableStateOf(false) }
     var seasonMenuExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(itemId) {
+        if (itemId != null) {
+            isFormLoading = true
+            viewModel.loadItem(itemId).collect { item ->
+                if (item != null) {
+                    formState = item.toFormState()
+                }
+                isFormLoading = false
+            }
+        } else {
+            formState = ItemFormState()
+            isFormLoading = false
+        }
+    }
 
     LaunchedEffect(itemSaved) {
         if (itemSaved) {
@@ -87,7 +110,13 @@ fun CreateItemScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.create_item_title)) },
+                title = {
+                    Text(
+                        stringResource(
+                            if (isEditMode) R.string.edit_item_title else R.string.create_item_title
+                        )
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack, enabled = !isSaving) {
                         Icon(
@@ -103,7 +132,12 @@ fun CreateItemScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        IconButton(onClick = { submitForm(formState, viewModel) { formState = it } }) {
+                        IconButton(onClick = {
+                            submitForm(
+                                itemId, formState, viewModel,
+                                nameRequiredError, categoryRequiredError
+                            ) { formState = it }
+                        }) {
                             Text(
                                 text = stringResource(R.string.save),
                                 style = MaterialTheme.typography.labelLarge,
@@ -120,6 +154,16 @@ fun CreateItemScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
+        if (isFormLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -162,7 +206,7 @@ fun CreateItemScreen(
                 onExpandedChange = { categoryMenuExpanded = it }
             ) {
                 OutlinedTextField(
-                    value = formState.category?.displayName.orEmpty(),
+                    value = formState.category?.localizedName().orEmpty(),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.item_category_label)) },
@@ -179,7 +223,7 @@ fun CreateItemScreen(
                 ) {
                     Category.entries.forEach { category ->
                         DropdownMenuItem(
-                            text = { Text(category.displayName) },
+                            text = { Text(category.localizedName()) },
                             onClick = {
                                 formState = formState.copy(category = category, categoryError = null)
                                 categoryMenuExpanded = false
@@ -194,7 +238,7 @@ fun CreateItemScreen(
                 onExpandedChange = { seasonMenuExpanded = it }
             ) {
                 OutlinedTextField(
-                    value = formState.season?.displayName.orEmpty(),
+                    value = formState.season?.localizedName().orEmpty(),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.item_season_label)) },
@@ -217,7 +261,7 @@ fun CreateItemScreen(
                     )
                     Season.entries.forEach { season ->
                         DropdownMenuItem(
-                            text = { Text(season.displayName) },
+                            text = { Text(season.localizedName()) },
                             onClick = {
                                 formState = formState.copy(season = season)
                                 seasonMenuExpanded = false
@@ -236,32 +280,70 @@ fun CreateItemScreen(
             )
 
             Button(
-                onClick = { submitForm(formState, viewModel) { formState = it } },
+                onClick = {
+                    submitForm(
+                        itemId, formState, viewModel,
+                        nameRequiredError, categoryRequiredError
+                    ) { formState = it }
+                },
                 enabled = !isSaving,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.save_item))
             }
         }
+        }
     }
 }
 
+private fun ItemLocal.toFormState(): ItemFormState {
+    return ItemFormState(
+        name = name,
+        description = description.orEmpty(),
+        category = Category.fromString(category),
+        season = Season.fromString(season),
+        imageUrl = imageUrl.orEmpty()
+    )
+}
+
 private fun submitForm(
+    itemId: String?,
     formState: ItemFormState,
     viewModel: ItemsViewModel,
+    nameRequired: String,
+    categoryRequired: String,
     onFormStateUpdate: (ItemFormState) -> Unit
 ) {
-    val validated = formState.validate()
+    val validated = formState.validate(nameRequired, categoryRequired)
     onFormStateUpdate(validated)
     if (!validated.isValid) return
 
-    viewModel.createItem(
-        name = validated.name.trim(),
-        description = validated.description.trim().takeIf { it.isNotEmpty() },
-        category = validated.category!!.name,
-        season = validated.season?.name,
-        imageUrl = validated.imageUrl.trim().takeIf { it.isNotEmpty() }
-    )
+    val name = validated.name.trim()
+    val description = validated.description.trim().takeIf { it.isNotEmpty() }
+    val category = validated.category!!
+    val season = validated.season
+    val imageUrl = validated.imageUrl.trim().takeIf { it.isNotEmpty() }
+
+    if (itemId == null) {
+        viewModel.createItem(
+            name = name,
+            description = description,
+            category = category.name,
+            season = season?.name,
+            imageUrl = imageUrl
+        )
+    } else {
+        viewModel.updateItem(
+            itemId = itemId,
+            updates = ItemUpdates(
+                name = name,
+                description = description,
+                category = category,
+                season = season,
+                imageUrl = imageUrl
+            )
+        )
+    }
 }
 
 @Composable

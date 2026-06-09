@@ -30,14 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.presentation.auth.AuthState
 import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
+import com.myshelf.myshelf_app.util.AuthField
+import com.myshelf.myshelf_app.util.StringResources
 import com.myshelf.myshelf_app.util.Validator
 
 @Composable
@@ -85,11 +89,11 @@ fun RegisterScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Регистрация",
+                    text = stringResource(R.string.register_title),
                     style = MaterialTheme.typography.headlineLarge
                 )
                 Text(
-                    text = "Создайте аккаунт в «Моей полке»",
+                    text = stringResource(R.string.register_subtitle),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -102,7 +106,7 @@ fun RegisterScreen(
                         displayName = it
                         displayNameError = null
                     },
-                    label = { Text("Имя") },
+                    label = { Text(stringResource(R.string.field_name)) },
                     singleLine = true,
                     isError = displayNameError != null,
                     supportingText = displayNameError?.let { { Text(it) } },
@@ -119,7 +123,7 @@ fun RegisterScreen(
                         email = it
                         emailError = null
                     },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.field_email)) },
                     singleLine = true,
                     isError = emailError != null,
                     supportingText = emailError?.let { { Text(it) } },
@@ -141,7 +145,7 @@ fun RegisterScreen(
                         password = it
                         passwordError = null
                     },
-                    label = { Text("Пароль") },
+                    label = { Text(stringResource(R.string.field_password)) },
                     singleLine = true,
                     isError = passwordError != null,
                     supportingText = passwordError?.let { { Text(it) } },
@@ -204,11 +208,11 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(top = 24.dp)
                 ) {
-                    Text("Зарегистрироваться")
+                    Text(stringResource(R.string.register_button))
                 }
 
                 Text(
-                    text = "Уже есть аккаунт? Войти",
+                    text = stringResource(R.string.register_has_account),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
@@ -242,11 +246,11 @@ private fun submitRegister(
         var nameErr: String? = null
         var emailErr: String? = null
         var passErr: String? = null
-        errors.forEach { message ->
-            when {
-                message.contains("имя", ignoreCase = true) -> nameErr = message
-                message.contains("email", ignoreCase = true) -> emailErr = message
-                message.contains("Пароль", ignoreCase = true) -> passErr = message
+        errors.forEach { error ->
+            when (error.field) {
+                AuthField.DISPLAY_NAME -> nameErr = StringResources.getString(error.messageRes)
+                AuthField.EMAIL -> emailErr = StringResources.getString(error.messageRes)
+                AuthField.PASSWORD -> passErr = StringResources.getString(error.messageRes)
             }
         }
         onValidationError(nameErr, emailErr, passErr)

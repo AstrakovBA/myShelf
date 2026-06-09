@@ -11,6 +11,7 @@ import com.myshelf.myshelf_app.presentation.outfit.OutfitUpdates
 import com.myshelf.myshelf_app.util.Resource
 import com.myshelf.myshelf_app.util.Result
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,9 @@ class OutfitsViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
@@ -105,6 +109,28 @@ class OutfitsViewModel(
         _outfitSaved.value = false
     }
 
+    fun loadOutfit(outfitId: String): Flow<OutfitWithSlots?> {
+        return repository.getOutfitWithSlotsFlow(outfitId)
+    }
+
+    fun syncOutfits() {
+        viewModelScope.launch {
+            try {
+                _isRefreshing.value = true
+                _errorMessage.value = null
+
+                when (val result = repository.syncOutfitsWithServer(userId)) {
+                    is Result.Success -> _errorMessage.value = null
+                    is Result.Error -> _errorMessage.value = result.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = getErrorMessage(e)
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
+
     fun deleteOutfit(outfitId: String) {
         viewModelScope.launch {
             try {
@@ -126,25 +152,41 @@ class OutfitsViewModel(
     fun updateOutfit(outfitId: String, updates: OutfitUpdates) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                _isSaving.value = true
+                _outfitSaved.value = false
                 _errorMessage.value = null
+
+                val slots = updates.slots
+                    .filter { (_, itemId) -> !itemId.isNullOrBlank() }
+                    .map { (slotType, itemId) ->
+                        OutfitSlotLocal(
+                            id = OutfitMapper.generateSlotId(),
+                            outfitId = outfitId,
+                            itemId = itemId,
+                            slotType = slotType.name
+                        )
+                    }
 
                 when (
                     val result = repository.updateOutfit(
                         outfitId = outfitId,
                         name = updates.name,
                         description = updates.description,
-                        season = updates.season,
-                        slots = updates.slots
+                        season = updates.season?.name,
+                        slots = slots
                     )
                 ) {
-                    is Result.Success -> _errorMessage.value = null
+                    is Result.Success -> {
+                        _errorMessage.value = null
+                        _outfitSaved.value = true
+                    }
+
                     is Result.Error -> _errorMessage.value = result.message
                 }
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
             } finally {
-                _isLoading.value = false
+                _isSaving.value = false
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.myshelf.myshelf_app.data.remote
 
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.util.Resource
+import com.myshelf.myshelf_app.util.StringResources
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -21,21 +23,26 @@ object ApiCallHandler {
                         @Suppress("UNCHECKED_CAST")
                         Resource.Success(Unit as T)
                     }
-                    else -> Resource.Error("Пустой ответ сервера")
+                    else -> Resource.Error(StringResources.getString(R.string.error_empty_server_response))
                 }
             } else {
                 Resource.Error(mapHttpError(response))
             }
         } catch (e: UnknownHostException) {
-            Resource.Error("Ошибка сети. Проверьте подключение к интернету.")
+            Resource.Error(StringResources.getString(R.string.error_network_check_connection))
         } catch (e: SocketTimeoutException) {
-            Resource.Error("Превышено время ожидания ответа сервера.")
+            Resource.Error(StringResources.getString(R.string.error_server_timeout))
         } catch (e: IOException) {
-            Resource.Error("Ошибка сети: ${e.localizedMessage ?: "неизвестная ошибка"}")
+            Resource.Error(
+                StringResources.getString(
+                    R.string.error_network_unknown,
+                    e.localizedMessage ?: StringResources.getString(R.string.error_unknown)
+                )
+            )
         } catch (e: ApiException) {
-            Resource.Error(e.message ?: "Ошибка API")
+            Resource.Error(e.message ?: StringResources.getString(R.string.error_api))
         } catch (e: Exception) {
-            Resource.Error(e.localizedMessage ?: "Произошла неизвестная ошибка")
+            Resource.Error(e.localizedMessage ?: StringResources.getString(R.string.error_unknown))
         }
     }
 
@@ -46,7 +53,7 @@ object ApiCallHandler {
                 @Suppress("UNCHECKED_CAST")
                 Resource.Success(body as T)
             } else {
-                Resource.Error("Пустой ответ сервера")
+                Resource.Error(StringResources.getString(R.string.error_empty_server_response))
             }
         } else {
             Resource.Error(mapHttpError(this))
@@ -61,7 +68,11 @@ object ApiCallHandler {
                 @Suppress("UNCHECKED_CAST")
                 return Unit as T
             }
-            throw ApiException(response.code(), "Пустой ответ сервера", response.errorBody()?.string())
+            throw ApiException(
+                response.code(),
+                StringResources.getString(R.string.error_empty_server_response),
+                response.errorBody()?.string()
+            )
         }
         throw ApiException(response.code(), mapHttpError(response), response.errorBody()?.string())
     }
@@ -71,14 +82,14 @@ object ApiCallHandler {
     private fun <T> mapHttpError(response: Response<T>): String {
         val serverMessage = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
         val baseMessage = when (response.code()) {
-            400 -> "Некорректный запрос"
-            401 -> "Не авторизован. Войдите в аккаунт"
-            403 -> "Доступ запрещён"
-            404 -> "Ресурс не найден"
-            409 -> "Конфликт данных"
-            422 -> "Ошибка валидации данных"
-            500 -> "Ошибка сервера"
-            else -> "Ошибка сервера: ${response.code()}"
+            400 -> StringResources.getString(R.string.error_http_bad_request)
+            401 -> StringResources.getString(R.string.error_http_unauthorized)
+            403 -> StringResources.getString(R.string.error_http_forbidden)
+            404 -> StringResources.getString(R.string.error_http_not_found)
+            409 -> StringResources.getString(R.string.error_http_conflict)
+            422 -> StringResources.getString(R.string.error_http_validation)
+            500 -> StringResources.getString(R.string.error_http_server)
+            else -> StringResources.getString(R.string.error_http_code, response.code())
         }
         return if (serverMessage != null) "$baseMessage: $serverMessage" else baseMessage
     }

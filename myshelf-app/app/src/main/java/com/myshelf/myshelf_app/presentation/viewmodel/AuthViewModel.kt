@@ -3,9 +3,11 @@ package com.myshelf.myshelf_app.presentation.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.myshelf.myshelf_app.data.local.entity.UserLocal
 import com.myshelf.myshelf_app.data.repository.AuthRepository
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.presentation.BaseViewModel
 import com.myshelf.myshelf_app.presentation.auth.AuthState
 import com.myshelf.myshelf_app.util.Result
+import com.myshelf.myshelf_app.util.StringResources
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,7 +66,9 @@ class AuthViewModel(
                             _currentUser.value = repository.getCurrentUser()
                             _authState.value = AuthState.Authenticated(userId)
                         } else {
-                            _authState.value = AuthState.Error("Не удалось получить профиль пользователя")
+                            _authState.value = AuthState.Error(
+                                StringResources.getString(R.string.error_user_profile_not_found)
+                            )
                         }
                     }
 
@@ -94,7 +98,9 @@ class AuthViewModel(
                             _currentUser.value = repository.getCurrentUser()
                             _authState.value = AuthState.Authenticated(userId)
                         } else {
-                            _authState.value = AuthState.Error("Не удалось получить профиль пользователя")
+                            _authState.value = AuthState.Error(
+                                StringResources.getString(R.string.error_user_profile_not_found)
+                            )
                         }
                     }
 
@@ -132,6 +138,16 @@ class AuthViewModel(
                         _errorMessage.value = result.message
                     }
                 }
+            } catch (e: Exception) {
+                _errorMessage.value = getErrorMessage(e)
+            }
+        }
+    }
+
+    fun refreshCurrentUser() {
+        viewModelScope.launch {
+            try {
+                _currentUser.value = repository.getCurrentUser()
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
             }

@@ -40,7 +40,7 @@ fun OutfitSlotCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = slotType.displayName,
+                text = slotType.localizedName(),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )

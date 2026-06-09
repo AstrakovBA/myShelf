@@ -12,8 +12,11 @@ import com.myshelf.myshelf_app.data.remote.TokenManager
 import com.myshelf.myshelf_app.data.remote.WardrobeApiService
 import com.myshelf.myshelf_app.data.remote.authorizationHeader
 import com.myshelf.myshelf_app.data.remote.toResultUnit
+import com.myshelf.myshelf_app.R
+import com.myshelf.myshelf_app.presentation.item.ItemUpdates
 import com.myshelf.myshelf_app.util.Resource
 import com.myshelf.myshelf_app.util.Result
+import com.myshelf.myshelf_app.util.StringResources
 import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 
@@ -25,6 +28,10 @@ class ItemsRepository(
 
     fun getItemsFlow(userId: String): Flow<List<ItemLocal>> {
         return itemDao.getItemsByUser(userId)
+    }
+
+    fun getItemFlow(itemId: String): Flow<ItemLocal?> {
+        return itemDao.observeItemById(itemId)
     }
 
     suspend fun createItem(item: ItemLocal): Result<Unit> {
@@ -45,7 +52,7 @@ class ItemsRepository(
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(
-                message = e.localizedMessage ?: "Не удалось сохранить вещь",
+                message = e.localizedMessage ?: StringResources.getString(R.string.error_save_item),
                 cause = e
             )
         }
@@ -53,7 +60,7 @@ class ItemsRepository(
 
     suspend fun syncItemsWithServer(userId: String): Result<Unit> {
         if (!tokenManager.isLoggedIn()) {
-            return Result.Error("Требуется авторизация для синхронизации")
+            return Result.Error(StringResources.getString(R.string.error_sync_auth_required))
         }
 
         return try {
@@ -77,15 +84,50 @@ class ItemsRepository(
 
                 is Resource.Error -> Result.Error(fetchResult.message)
 
-                is Resource.Loading -> Result.Error("Ошибка синхронизации")
+                is Resource.Loading -> Result.Error(StringResources.getString(R.string.error_sync_failed))
             }
         } catch (e: IOException) {
-            Result.Error("Ошибка сети. Синхронизация будет повторена позже.", e)
+            Result.Error(StringResources.getString(R.string.error_network_sync_retry), e)
         } catch (e: ApiException) {
-            Result.Error(e.message ?: "Ошибка API", e)
+            Result.Error(e.message ?: StringResources.getString(R.string.error_api), e)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Ошибка синхронизации", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_sync_failed), e)
         }
+    }
+
+    suspend fun updateItem(itemId: String, updates: ItemUpdates): Result<Unit> {
+        return try {
+            val existing = itemDao.getItemById(itemId)
+                ?: return Result.Error(StringResources.getString(R.string.error_item_not_found))
+
+            val now = System.currentTimeMillis()
+            val updatedItem = existing.copy(
+                name = updates.name,
+                description = updates.description,
+                category = updates.category.name,
+                season = updates.season?.name,
+                imageUrl = updates.imageUrl,
+                isDirty = true,
+                updatedAt = now
+            )
+            itemDao.upsertItem(updatedItem)
+
+            if (!tokenManager.isLoggedIn()) {
+                return Result.Success(Unit)
+            }
+
+            runCatching { uploadDirtyItems(listOf(updatedItem)) }
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(
+                message = e.localizedMessage ?: StringResources.getString(R.string.error_update_item),
+                cause = e
+            )
+        }
+    }
+
+    suspend fun clearLocalCache(userId: String) {
+        itemDao.deleteAllByUser(userId)
     }
 
     suspend fun deleteItem(itemId: String): Result<Unit> {
@@ -106,7 +148,7 @@ class ItemsRepository(
             itemDao.deleteItemById(itemId)
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось удалить вещь", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_delete_item), e)
         }
     }
 

@@ -213,7 +213,7 @@ private fun CategoryFilterRow(
                     selectedCategory = category
                     onCategorySelected(category)
                 },
-                label = { Text(category.displayName) }
+                label = { Text(category.localizedName()) }
             )
         }
     }

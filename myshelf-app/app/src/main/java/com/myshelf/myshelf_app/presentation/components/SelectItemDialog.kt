@@ -35,7 +35,7 @@ fun SelectItemDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = stringResource(R.string.select_item_dialog_title, slotType.displayName)
+                text = stringResource(R.string.select_item_dialog_title, slotType.localizedName())
             )
         },
         text = {

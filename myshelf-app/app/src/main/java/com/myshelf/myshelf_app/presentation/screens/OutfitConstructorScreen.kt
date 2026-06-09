@@ -1,6 +1,7 @@
 package com.myshelf.myshelf_app.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +48,7 @@ import com.myshelf.myshelf_app.domain.model.Season
 import com.myshelf.myshelf_app.presentation.components.OutfitSlotCard
 import com.myshelf.myshelf_app.presentation.components.SelectItemDialog
 import com.myshelf.myshelf_app.presentation.outfit.OutfitFormState
+import com.myshelf.myshelf_app.presentation.outfit.OutfitUpdates
 import com.myshelf.myshelf_app.presentation.outfit.SlotType
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
@@ -57,18 +59,24 @@ import com.myshelf.myshelf_app.util.Resource
 fun OutfitConstructorScreen(
     outfitsViewModel: OutfitsViewModel,
     itemsViewModel: ItemsViewModel,
+    outfitId: String? = null,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isEditMode = outfitId != null
     val isSaving by outfitsViewModel.isSaving.collectAsStateWithLifecycle()
     val outfitSaved by outfitsViewModel.outfitSaved.collectAsStateWithLifecycle()
     val errorMessage by outfitsViewModel.errorMessage.collectAsStateWithLifecycle()
     val itemsState by itemsViewModel.items.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    var formState by remember { mutableStateOf(OutfitFormState()) }
+    var formState by remember(outfitId) { mutableStateOf(OutfitFormState()) }
+    var isFormLoading by remember(outfitId) { mutableStateOf(isEditMode) }
     var seasonMenuExpanded by remember { mutableStateOf(false) }
     var selectingSlot by remember { mutableStateOf<SlotType?>(null) }
+
+    val nameRequiredError = stringResource(R.string.error_outfit_name_required)
+    val slotsRequiredError = stringResource(R.string.error_outfit_slot_required)
 
     val allItems: List<ItemLocal> = remember(itemsState) {
         (itemsState as? Resource.Success)?.data.orEmpty()
@@ -80,6 +88,33 @@ fun OutfitConstructorScreen(
 
     LaunchedEffect(Unit) {
         itemsViewModel.loadItems()
+    }
+
+    LaunchedEffect(outfitId) {
+        if (outfitId != null) {
+            isFormLoading = true
+            outfitsViewModel.loadOutfit(outfitId).collect { outfitWithSlots ->
+                if (outfitWithSlots != null) {
+                    val outfit = outfitWithSlots.outfit
+                    val slots = OutfitFormState.defaultEmptySlots().toMutableMap()
+                    outfitWithSlots.slots.forEach { slot ->
+                        Category.fromString(slot.slotType)?.let { category ->
+                            slots[category] = slot.itemId
+                        }
+                    }
+                    formState = OutfitFormState(
+                        name = outfit.name,
+                        description = outfit.description.orEmpty(),
+                        season = Season.fromString(outfit.season),
+                        slots = slots
+                    )
+                }
+                isFormLoading = false
+            }
+        } else {
+            formState = OutfitFormState()
+            isFormLoading = false
+        }
     }
 
     LaunchedEffect(outfitSaved) {
@@ -114,7 +149,13 @@ fun OutfitConstructorScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.outfit_constructor_title)) },
+                title = {
+                    Text(
+                        stringResource(
+                            if (isEditMode) R.string.edit_outfit else R.string.create_outfit_title
+                        )
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack, enabled = !isSaving) {
                         Icon(
@@ -130,7 +171,12 @@ fun OutfitConstructorScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        IconButton(onClick = { submitOutfit(formState, outfitsViewModel) { formState = it } }) {
+                        IconButton(onClick = {
+                            submitOutfit(
+                                outfitId, formState, outfitsViewModel,
+                                nameRequiredError, slotsRequiredError
+                            ) { formState = it }
+                        }) {
                             Text(
                                 text = stringResource(R.string.save),
                                 style = MaterialTheme.typography.labelLarge,
@@ -147,6 +193,16 @@ fun OutfitConstructorScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
+        if (isFormLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -182,7 +238,7 @@ fun OutfitConstructorScreen(
                     onExpandedChange = { seasonMenuExpanded = it }
                 ) {
                     OutlinedTextField(
-                        value = formState.season?.displayName.orEmpty(),
+                        value = formState.season?.localizedName().orEmpty(),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.item_season_label)) },
@@ -207,7 +263,7 @@ fun OutfitConstructorScreen(
                         )
                         Season.entries.forEach { season ->
                             DropdownMenuItem(
-                                text = { Text(season.displayName) },
+                                text = { Text(season.localizedName()) },
                                 onClick = {
                                     formState = formState.copy(season = season)
                                     seasonMenuExpanded = false
@@ -252,7 +308,12 @@ fun OutfitConstructorScreen(
             }
 
             Button(
-                onClick = { submitOutfit(formState, outfitsViewModel) { formState = it } },
+                onClick = {
+                    submitOutfit(
+                        outfitId, formState, outfitsViewModel,
+                        nameRequiredError, slotsRequiredError
+                    ) { formState = it }
+                },
                 enabled = !isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -261,35 +322,55 @@ fun OutfitConstructorScreen(
                 Text(stringResource(R.string.save_outfit))
             }
         }
+        }
     }
 }
 
 private fun submitOutfit(
+    outfitId: String?,
     formState: OutfitFormState,
     viewModel: OutfitsViewModel,
+    nameRequired: String,
+    slotsRequired: String,
     onFormStateUpdate: (OutfitFormState) -> Unit
 ) {
-    val validated = formState.validate()
+    val validated = formState.validate(nameRequired, slotsRequired)
     onFormStateUpdate(validated)
     if (!validated.isValid) return
 
-    val outfitId = OutfitMapper.generateLocalId()
-    val slots = validated.slots
-        .filter { (_, itemId) -> !itemId.isNullOrBlank() }
-        .map { (slotType, itemId) ->
-            OutfitSlotLocal(
-                id = OutfitMapper.generateSlotId(),
-                outfitId = outfitId,
-                itemId = itemId,
-                slotType = slotType.name
-            )
-        }
+    val name = validated.name.trim()
+    val description = validated.description.trim().takeIf { it.isNotEmpty() }
+    val season = validated.season
 
-    viewModel.createOutfit(
-        name = validated.name.trim(),
-        description = validated.description.trim().takeIf { it.isNotEmpty() },
-        season = validated.season?.name,
-        slots = slots,
-        outfitId = outfitId
-    )
+    if (outfitId == null) {
+        val newOutfitId = OutfitMapper.generateLocalId()
+        val slots = validated.slots
+            .filter { (_, itemId) -> !itemId.isNullOrBlank() }
+            .map { (slotType, itemId) ->
+                OutfitSlotLocal(
+                    id = OutfitMapper.generateSlotId(),
+                    outfitId = newOutfitId,
+                    itemId = itemId,
+                    slotType = slotType.name
+                )
+            }
+
+        viewModel.createOutfit(
+            name = name,
+            description = description,
+            season = season?.name,
+            slots = slots,
+            outfitId = newOutfitId
+        )
+    } else {
+        viewModel.updateOutfit(
+            outfitId = outfitId,
+            updates = OutfitUpdates(
+                name = name,
+                description = description,
+                season = season,
+                slots = validated.slots
+            )
+        )
+    }
 }

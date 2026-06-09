@@ -13,11 +13,11 @@ data class OutfitFormState(
     val nameError: String? = null,
     val slotsError: String? = null
 ) {
-    fun validate(): OutfitFormState {
+    fun validate(nameRequired: String, slotsRequired: String): OutfitFormState {
         val hasFilledSlot = slots.values.any { !it.isNullOrBlank() }
         return copy(
-            nameError = if (name.trim().isEmpty()) "Укажите название образа" else null,
-            slotsError = if (!hasFilledSlot) "Выберите хотя бы одну вещь для образа" else null
+            nameError = if (name.trim().isEmpty()) nameRequired else null,
+            slotsError = if (!hasFilledSlot) slotsRequired else null
         )
     }
 

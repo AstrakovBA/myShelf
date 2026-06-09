@@ -1,10 +1,10 @@
 package com.myshelf.myshelf_app.presentation.outfit
 
-import com.myshelf.myshelf_app.data.local.entity.OutfitSlotLocal
+import com.myshelf.myshelf_app.domain.model.Season
 
 data class OutfitUpdates(
     val name: String,
-    val description: String? = null,
-    val season: String? = null,
-    val slots: List<OutfitSlotLocal>
+    val description: String?,
+    val season: Season?,
+    val slots: Map<SlotType, String?>
 )

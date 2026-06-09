@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +35,7 @@ fun ItemCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -84,12 +86,12 @@ fun ItemCard(
                         enabled = false,
                         label = {
                             Text(
-                                text = Category.displayNameFor(item.category),
+                                text = Category.displayNameFor(item.category, context),
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
                     )
-                    Season.displayNameFor(item.season)?.let { seasonLabel ->
+                    Season.displayNameFor(item.season, context)?.let { seasonLabel ->
                         AssistChip(
                             onClick = {},
                             enabled = false,

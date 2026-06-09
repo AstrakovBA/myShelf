@@ -2,7 +2,9 @@ package com.myshelf.myshelf_app.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.util.Resource
+import com.myshelf.myshelf_app.util.StringResources
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,22 +21,22 @@ abstract class BaseViewModel : ViewModel() {
     protected fun getErrorMessage(throwable: Throwable): String {
         return when (throwable) {
             is UnknownHostException,
-            is IOException -> "Ошибка сети. Проверьте подключение к интернету."
+            is IOException -> StringResources.getString(R.string.error_network_check_connection)
 
-            is SocketTimeoutException -> "Превышено время ожидания ответа сервера."
+            is SocketTimeoutException -> StringResources.getString(R.string.error_server_timeout)
 
             is HttpException -> when (throwable.code()) {
-                400 -> "Некорректный запрос."
-                401 -> "Не авторизован. Войдите в аккаунт."
-                403 -> "Доступ запрещён."
-                404 -> "Ресурс не найден."
-                409 -> "Конфликт данных. Попробуйте синхронизировать."
-                500 -> "Ошибка сервера. Попробуйте позже."
-                else -> "Ошибка сервера: ${throwable.code()}"
+                400 -> StringResources.getString(R.string.error_http_bad_request)
+                401 -> StringResources.getString(R.string.error_http_unauthorized)
+                403 -> StringResources.getString(R.string.error_http_forbidden)
+                404 -> StringResources.getString(R.string.error_http_not_found)
+                409 -> StringResources.getString(R.string.error_http_conflict)
+                500 -> StringResources.getString(R.string.error_http_server)
+                else -> StringResources.getString(R.string.error_http_code, throwable.code())
             }
 
             else -> throwable.localizedMessage?.takeIf { it.isNotBlank() }
-                ?: "Произошла неизвестная ошибка"
+                ?: StringResources.getString(R.string.error_unknown)
         }
     }
 

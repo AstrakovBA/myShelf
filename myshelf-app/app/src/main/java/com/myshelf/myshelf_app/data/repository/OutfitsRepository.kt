@@ -17,8 +17,10 @@ import com.myshelf.myshelf_app.data.remote.TokenManager
 import com.myshelf.myshelf_app.data.remote.WardrobeApiService
 import com.myshelf.myshelf_app.data.remote.authorizationHeader
 import com.myshelf.myshelf_app.data.remote.toResultUnit
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.util.Resource
 import com.myshelf.myshelf_app.util.Result
+import com.myshelf.myshelf_app.util.StringResources
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -83,13 +85,13 @@ class OutfitsRepository(
             runCatching { uploadDirtyOutfits(listOf(localOutfit to localSlots)) }
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось сохранить образ", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_save_outfit), e)
         }
     }
 
     suspend fun syncOutfitsWithServer(userId: String): Result<Unit> {
         if (!tokenManager.isLoggedIn()) {
-            return Result.Error("Требуется авторизация для синхронизации")
+            return Result.Error(StringResources.getString(R.string.error_sync_auth_required))
         }
 
         return try {
@@ -119,14 +121,14 @@ class OutfitsRepository(
 
                 is Resource.Error -> Result.Error(fetchResult.message)
 
-                is Resource.Loading -> Result.Error("Ошибка синхронизации")
+                is Resource.Loading -> Result.Error(StringResources.getString(R.string.error_sync_failed))
             }
         } catch (e: IOException) {
-            Result.Error("Ошибка сети. Синхронизация будет повторена позже.", e)
+            Result.Error(StringResources.getString(R.string.error_network_sync_retry), e)
         } catch (e: ApiException) {
-            Result.Error(e.message ?: "Ошибка API", e)
+            Result.Error(e.message ?: StringResources.getString(R.string.error_api), e)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Ошибка синхронизации", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_sync_failed), e)
         }
     }
 
@@ -139,7 +141,7 @@ class OutfitsRepository(
     ): Result<Unit> {
         return try {
             val existing = outfitDao.getOutfitById(outfitId)
-                ?: return Result.Error("Образ не найден")
+                ?: return Result.Error(StringResources.getString(R.string.error_outfit_not_found))
 
             val updatedOutfit = existing.copy(
                 name = name,
@@ -166,8 +168,12 @@ class OutfitsRepository(
             runCatching { uploadDirtyOutfits(listOf(updatedOutfit to updatedSlots)) }
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось обновить образ", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_update_outfit), e)
         }
+    }
+
+    suspend fun clearLocalCache(userId: String) {
+        outfitDao.deleteAllByUser(userId)
     }
 
     suspend fun deleteOutfit(outfitId: String): Result<Unit> {
@@ -187,7 +193,7 @@ class OutfitsRepository(
             outfitDao.deleteOutfitById(outfitId)
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.localizedMessage ?: "Не удалось удалить образ", e)
+            Result.Error(e.localizedMessage ?: StringResources.getString(R.string.error_delete_outfit), e)
         }
     }
 

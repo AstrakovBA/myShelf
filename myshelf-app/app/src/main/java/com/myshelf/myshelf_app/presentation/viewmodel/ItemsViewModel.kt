@@ -5,9 +5,11 @@ import com.myshelf.myshelf_app.data.local.entity.ItemLocal
 import com.myshelf.myshelf_app.data.mapper.ItemMapper
 import com.myshelf.myshelf_app.data.repository.ItemsRepository
 import com.myshelf.myshelf_app.presentation.BaseViewModel
+import com.myshelf.myshelf_app.presentation.item.ItemUpdates
 import com.myshelf.myshelf_app.util.Resource
 import com.myshelf.myshelf_app.util.Result
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -106,6 +108,33 @@ class ItemsViewModel(
 
     fun consumeItemSaved() {
         _itemSaved.value = false
+    }
+
+    fun loadItem(itemId: String): Flow<ItemLocal?> {
+        return repository.getItemFlow(itemId)
+    }
+
+    fun updateItem(itemId: String, updates: ItemUpdates) {
+        viewModelScope.launch {
+            try {
+                _isSaving.value = true
+                _itemSaved.value = false
+                _errorMessage.value = null
+
+                when (val result = repository.updateItem(itemId, updates)) {
+                    is Result.Success -> {
+                        _errorMessage.value = null
+                        _itemSaved.value = true
+                    }
+
+                    is Result.Error -> _errorMessage.value = result.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = getErrorMessage(e)
+            } finally {
+                _isSaving.value = false
+            }
+        }
     }
 
     fun deleteItem(itemId: String) {

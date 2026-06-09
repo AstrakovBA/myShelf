@@ -30,14 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.presentation.auth.AuthState
 import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
+import com.myshelf.myshelf_app.util.AuthField
+import com.myshelf.myshelf_app.util.StringResources
 import com.myshelf.myshelf_app.util.Validator
 
 @Composable
@@ -83,11 +87,11 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Моя полка",
+                    text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.headlineLarge
                 )
                 Text(
-                    text = "Вход в аккаунт",
+                    text = stringResource(R.string.login_subtitle),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
@@ -99,7 +103,7 @@ fun LoginScreen(
                         email = it
                         emailError = null
                     },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.field_email)) },
                     singleLine = true,
                     isError = emailError != null,
                     supportingText = emailError?.let { { Text(it) } },
@@ -119,7 +123,7 @@ fun LoginScreen(
                         password = it
                         passwordError = null
                     },
-                    label = { Text("Пароль") },
+                    label = { Text(stringResource(R.string.field_password)) },
                     singleLine = true,
                     isError = passwordError != null,
                     supportingText = passwordError?.let { { Text(it) } },
@@ -166,11 +170,11 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .padding(top = 24.dp)
                 ) {
-                    Text("Войти")
+                    Text(stringResource(R.string.login_button))
                 }
 
                 Text(
-                    text = "Нет аккаунта? Зарегистрироваться",
+                    text = stringResource(R.string.login_no_account),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
@@ -202,10 +206,11 @@ private fun submitLogin(
     if (errors.isNotEmpty()) {
         var emailErr: String? = null
         var passErr: String? = null
-        errors.forEach { message ->
-            when {
-                message.contains("email", ignoreCase = true) -> emailErr = message
-                message.contains("Пароль", ignoreCase = true) -> passErr = message
+        errors.forEach { error ->
+            when (error.field) {
+                AuthField.EMAIL -> emailErr = StringResources.getString(error.messageRes)
+                AuthField.PASSWORD -> passErr = StringResources.getString(error.messageRes)
+                AuthField.DISPLAY_NAME -> Unit
             }
         }
         onValidationError(emailErr, passErr)

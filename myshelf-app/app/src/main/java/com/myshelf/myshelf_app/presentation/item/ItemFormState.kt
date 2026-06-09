@@ -12,17 +12,11 @@ data class ItemFormState(
     val nameError: String? = null,
     val categoryError: String? = null
 ) {
-    fun validate(): ItemFormState {
+    fun validate(nameRequired: String, categoryRequired: String): ItemFormState {
         val trimmedName = name.trim()
         return copy(
-            nameError = when {
-                trimmedName.isEmpty() -> "Укажите название вещи"
-                else -> null
-            },
-            categoryError = when {
-                category == null -> "Выберите категорию"
-                else -> null
-            }
+            nameError = if (trimmedName.isEmpty()) nameRequired else null,
+            categoryError = if (category == null) categoryRequired else null
         )
     }
 

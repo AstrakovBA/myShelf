@@ -29,5 +29,5 @@ object Constants {
     const val DS_OFFLINE_MODE_ENABLED = "ds_offline_mode_enabled"
     const val DS_LANGUAGE = "ds_language"
 
-    const val DEFAULT_LANGUAGE = "ru"
+    const val DEFAULT_LANGUAGE = "en"
 }
