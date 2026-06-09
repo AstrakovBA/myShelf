@@ -38,7 +38,7 @@ class ItemsRepository(
         return try {
             val now = System.currentTimeMillis()
             val localItem = item.copy(
-                isDirty = true,
+                isDirty = !tokenManager.isGuestMode(),
                 updatedAt = now,
                 createdAt = if (item.createdAt > 0) item.createdAt else now
             )
@@ -110,7 +110,7 @@ class ItemsRepository(
                 category = updates.category.name,
                 season = updates.season?.name,
                 imageUrl = updates.imageUrl,
-                isDirty = true,
+                isDirty = !tokenManager.isGuestMode(),
                 updatedAt = now
             )
             itemDao.upsertItem(updatedItem)

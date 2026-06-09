@@ -224,10 +224,17 @@ fun AppNavigation(
         }
 
         composable(Screen.Profile.route) {
-            PlaceholderScreen(
-                titleRes = com.myshelf.myshelf_app.R.string.profile_title,
-                subtitleRes = com.myshelf.myshelf_app.R.string.profile_subtitle
-            )
+            if (authViewModel.isGuestMode()) {
+                PlaceholderScreen(
+                    titleRes = com.myshelf.myshelf_app.R.string.profile_title,
+                    subtitleRes = com.myshelf.myshelf_app.R.string.profile_guest_only
+                )
+            } else {
+                PlaceholderScreen(
+                    titleRes = com.myshelf.myshelf_app.R.string.profile_title,
+                    subtitleRes = com.myshelf.myshelf_app.R.string.profile_subtitle
+                )
+            }
         }
     }
 }

@@ -87,6 +87,7 @@
 
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">User profile (coming soon)</string>
+    <string name="profile_guest_only">Profile is only available for registered users</string>
 
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_account">Account</string>

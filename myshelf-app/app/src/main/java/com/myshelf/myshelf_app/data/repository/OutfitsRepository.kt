@@ -63,7 +63,7 @@ class OutfitsRepository(
         return try {
             val now = System.currentTimeMillis()
             val localOutfit = outfit.copy(
-                isDirty = true,
+                isDirty = !tokenManager.isGuestMode(),
                 updatedAt = now,
                 createdAt = if (outfit.createdAt > 0) outfit.createdAt else now
             )
@@ -150,7 +150,7 @@ class OutfitsRepository(
                 name = name,
                 description = description,
                 season = season,
-                isDirty = true,
+                isDirty = !tokenManager.isGuestMode(),
                 updatedAt = System.currentTimeMillis()
             )
             val updatedSlots = slots.map { slot ->

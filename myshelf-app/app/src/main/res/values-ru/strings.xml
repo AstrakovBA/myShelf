@@ -87,6 +87,7 @@
 
     <string name="profile_title">Профиль</string>
     <string name="profile_subtitle">Данные пользователя (скоро)</string>
+    <string name="profile_guest_only">Профиль доступен только для зарегистрированных пользователей</string>
 
     <string name="settings_section_appearance">Внешний вид</string>
     <string name="settings_section_account">Аккаунт</string>

@@ -13,7 +13,9 @@ class MyShelfApplication : Application() {
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            SyncManager.requestImmediateSync(this@MyShelfApplication)
+            if (!RetrofitClient.getTokenManager(this@MyShelfApplication).isGuestMode()) {
+                SyncManager.requestImmediateSync(this@MyShelfApplication)
+            }
         }
     }
 
@@ -27,7 +29,9 @@ class MyShelfApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         RetrofitClient.init(this)
-        SyncManager.schedulePeriodicSync(this)
+        if (!RetrofitClient.getTokenManager(this).isGuestMode()) {
+            SyncManager.schedulePeriodicSync(this)
+        }
         registerNetworkCallback()
     }
 
