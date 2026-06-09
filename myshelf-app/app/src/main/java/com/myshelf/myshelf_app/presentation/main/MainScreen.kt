@@ -28,7 +28,6 @@ import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.SettingsViewModel
-import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 
 private data class BottomNavItem(
     val screen: Screen,
@@ -38,11 +37,11 @@ private data class BottomNavItem(
 
 @Composable
 fun MainScreen(
-    viewModelFactory: ViewModelFactory,
     itemsViewModel: ItemsViewModel,
     outfitsViewModel: OutfitsViewModel,
     settingsViewModel: SettingsViewModel,
     authViewModel: AuthViewModel,
+    isGuestMode: Boolean,
     appVersion: String,
     onNavigateToItemDetails: (String) -> Unit,
     onNavigateToCreateItem: () -> Unit,
@@ -61,17 +60,32 @@ fun MainScreen(
         BottomNavItem(
             screen = Screen.ItemsList,
             labelRes = R.string.nav_items,
-            icon = { Icon(Icons.Default.Checkroom, contentDescription = null) }
+            icon = {
+                Icon(
+                    Icons.Default.Checkroom,
+                    contentDescription = stringResource(R.string.nav_items)
+                )
+            }
         ),
         BottomNavItem(
             screen = Screen.OutfitsList,
             labelRes = R.string.nav_outfits,
-            icon = { Icon(Icons.Default.Style, contentDescription = null) }
+            icon = {
+                Icon(
+                    Icons.Default.Style,
+                    contentDescription = stringResource(R.string.nav_outfits)
+                )
+            }
         ),
         BottomNavItem(
             screen = Screen.Settings,
             labelRes = R.string.nav_settings,
-            icon = { Icon(Icons.Default.Settings, contentDescription = null) }
+            icon = {
+                Icon(
+                    Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.nav_settings)
+                )
+            }
         )
     )
 
@@ -101,12 +115,13 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = bottomNavController,
-            startDestination = Screen.ItemsList.route,
+            startDestination = Screen.OutfitsList.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.ItemsList.route) {
                 ItemsListScreen(
                     viewModel = itemsViewModel,
+                    isGuestMode = isGuestMode,
                     onItemClick = onNavigateToItemDetails,
                     onCreateItemClick = onNavigateToCreateItem
                 )
@@ -115,6 +130,7 @@ fun MainScreen(
                 OutfitsListScreen(
                     viewModel = outfitsViewModel,
                     itemsViewModel = itemsViewModel,
+                    isGuestMode = isGuestMode,
                     onCreateOutfitClick = onNavigateToOutfitConstructor,
                     onEditOutfitClick = onNavigateToEditOutfit
                 )
@@ -123,6 +139,7 @@ fun MainScreen(
                 SettingsScreen(
                     settingsViewModel = settingsViewModel,
                     authViewModel = authViewModel,
+                    isGuestMode = isGuestMode,
                     appVersion = appVersion,
                     onProfileClick = onNavigateToProfile,
                     onLogout = onLogout

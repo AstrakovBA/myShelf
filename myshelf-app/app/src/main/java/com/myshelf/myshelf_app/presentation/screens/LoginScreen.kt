@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -182,6 +183,16 @@ fun LoginScreen(
                         .padding(top = 20.dp)
                         .clickable(enabled = !isLoading, onClick = onNavigateToRegister)
                 )
+
+                OutlinedButton(
+                    onClick = { viewModel.loginAsGuest() },
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text(stringResource(R.string.login_try_guest))
+                }
             }
 
             if (isLoading) {

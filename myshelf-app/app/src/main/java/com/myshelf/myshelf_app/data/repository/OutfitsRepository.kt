@@ -90,6 +90,9 @@ class OutfitsRepository(
     }
 
     suspend fun syncOutfitsWithServer(userId: String): Result<Unit> {
+        if (tokenManager.isGuestMode()) {
+            return Result.Error(StringResources.getString(R.string.error_sync_guest_mode))
+        }
         if (!tokenManager.isLoggedIn()) {
             return Result.Error(StringResources.getString(R.string.error_sync_auth_required))
         }

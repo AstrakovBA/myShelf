@@ -76,7 +76,9 @@ object RepositoryProvider {
         return AuthRepository(
             apiService = RetrofitClient.makeApiService(),
             tokenManager = RetrofitClient.getTokenManager(appContext),
-            userDao = db.userDao()
+            userDao = db.userDao(),
+            itemDao = db.itemDao(),
+            outfitDao = db.outfitDao()
         )
     }
 }

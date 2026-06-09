@@ -115,6 +115,10 @@ class SettingsViewModel(
     }
 
     fun syncAll() {
+        if (authRepository.isGuestMode()) {
+            _errorMessage.value = StringResources.getString(R.string.error_sync_guest_mode)
+            return
+        }
         if (userId.isBlank()) {
             _errorMessage.value = StringResources.getString(R.string.error_auth_required)
             return

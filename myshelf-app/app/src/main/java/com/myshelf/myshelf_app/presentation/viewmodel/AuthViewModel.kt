@@ -34,18 +34,33 @@ class AuthViewModel(
         viewModelScope.launch {
             try {
                 _authState.value = AuthState.Loading
-                if (repository.isLoggedIn()) {
-                    val user = repository.getCurrentUser()
-                    _currentUser.value = user
-                    val userId = repository.getUserId()
-                    if (userId != null) {
-                        _authState.value = AuthState.Authenticated(userId)
-                    } else {
+                when {
+                    repository.isGuestMode() -> {
+                        val guestId = repository.getUserId()
+                        if (guestId != null) {
+                            _currentUser.value = repository.getCurrentUser()
+                            _authState.value = AuthState.Guest(guestId)
+                        } else {
+                            _currentUser.value = null
+                            _authState.value = AuthState.Unauthenticated
+                        }
+                    }
+
+                    repository.isLoggedIn() -> {
+                        val user = repository.getCurrentUser()
+                        _currentUser.value = user
+                        val userId = repository.getUserId()
+                        if (userId != null) {
+                            _authState.value = AuthState.Authenticated(userId)
+                        } else {
+                            _authState.value = AuthState.Unauthenticated
+                        }
+                    }
+
+                    else -> {
+                        _currentUser.value = null
                         _authState.value = AuthState.Unauthenticated
                     }
-                } else {
-                    _currentUser.value = null
-                    _authState.value = AuthState.Unauthenticated
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(getErrorMessage(e))
@@ -117,11 +132,59 @@ class AuthViewModel(
         }
     }
 
+    fun loginAsGuest() {
+        viewModelScope.launch {
+            try {
+                _authState.value = AuthState.Loading
+                _errorMessage.value = null
+
+                when (val result = repository.loginAsGuest()) {
+                    is Result.Success -> {
+                        _currentUser.value = repository.getCurrentUser()
+                        _authState.value = AuthState.Guest(result.data)
+                    }
+
+                    is Result.Error -> {
+                        _errorMessage.value = result.message
+                        _authState.value = AuthState.Error(result.message)
+                    }
+                }
+            } catch (e: Exception) {
+                val message = getErrorMessage(e)
+                _errorMessage.value = message
+                _authState.value = AuthState.Error(message)
+            }
+        }
+    }
+
     fun logout() {
         repository.logout()
         _currentUser.value = null
         _authState.value = AuthState.Unauthenticated
         _errorMessage.value = null
+    }
+
+    fun logoutGuest() {
+        viewModelScope.launch {
+            try {
+                repository.logoutGuest()
+                _currentUser.value = null
+                _authState.value = AuthState.Unauthenticated
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = getErrorMessage(e)
+            }
+        }
+    }
+
+    fun isGuestMode(): Boolean = repository.isGuestMode()
+
+    fun logoutCurrentSession() {
+        if (repository.isGuestMode()) {
+            logoutGuest()
+        } else {
+            logout()
+        }
     }
 
     fun updateProfile(displayName: String?, avatarUrl: String?) {

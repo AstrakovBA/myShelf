@@ -51,7 +51,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.data.local.entity.ItemLocal
 import com.myshelf.myshelf_app.domain.model.Category
+import com.myshelf.myshelf_app.presentation.components.GuestModeTopBarTitle
 import com.myshelf.myshelf_app.presentation.components.ItemCard
+import com.myshelf.myshelf_app.presentation.components.guestModeTopAppBarColors
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.util.Resource
 
@@ -59,6 +61,7 @@ import com.myshelf.myshelf_app.util.Resource
 @Composable
 fun ItemsListScreen(
     viewModel: ItemsViewModel,
+    isGuestMode: Boolean = false,
     onItemClick: (String) -> Unit,
     onCreateItemClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -85,7 +88,12 @@ fun ItemsListScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.nav_items)) },
+                title = {
+                    GuestModeTopBarTitle(
+                        title = stringResource(R.string.nav_items),
+                        isGuestMode = isGuestMode
+                    )
+                },
                 actions = {
                     IconButton(onClick = onCreateItemClick) {
                         Icon(
@@ -94,10 +102,7 @@ fun ItemsListScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                colors = guestModeTopAppBarColors(isGuestMode)
             )
         },
         floatingActionButton = {

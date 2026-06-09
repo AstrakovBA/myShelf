@@ -70,6 +70,13 @@
     <string name="login_subtitle">Sign in to your account</string>
     <string name="login_button">Sign in</string>
     <string name="login_no_account">Don\'t have an account? Register</string>
+    <string name="login_try_guest">Try without registration</string>
+    <string name="guest_display_name">Guest</string>
+    <string name="guest_mode_badge">GUEST</string>
+    <string name="guest_mode_warning">All data will be deleted when you exit guest mode</string>
+    <string name="guest_logout_confirmation">Exit guest mode? All local data will be permanently deleted.</string>
+    <string name="error_sync_guest_mode">Sync is only available for registered users</string>
+    <string name="error_guest_login">Could not start guest mode</string>
     <string name="register_title">Register</string>
     <string name="register_subtitle">Create an account on My Shelf</string>
     <string name="register_button">Register</string>

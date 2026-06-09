@@ -3,6 +3,8 @@ package com.myshelf.myshelf_app.presentation.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -51,7 +53,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.data.local.entity.UserLocal
+import com.myshelf.myshelf_app.presentation.components.GuestModeTopBarTitle
 import com.myshelf.myshelf_app.presentation.components.SettingsListTile
+import com.myshelf.myshelf_app.presentation.components.guestModeTopAppBarColors
 import com.myshelf.myshelf_app.presentation.components.SettingsSectionDivider
 import com.myshelf.myshelf_app.presentation.components.SettingsSectionHeader
 import com.myshelf.myshelf_app.presentation.settings.Theme
@@ -62,6 +66,7 @@ import com.myshelf.myshelf_app.presentation.viewmodel.SettingsViewModel
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
     authViewModel: AuthViewModel,
+    isGuestMode: Boolean = false,
     appVersion: String,
     onProfileClick: () -> Unit,
     onLogout: () -> Unit,
@@ -205,7 +210,14 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             title = { Text(stringResource(R.string.settings_logout)) },
-            text = { Text(stringResource(R.string.settings_logout_confirmation)) },
+            text = {
+                Text(
+                    stringResource(
+                        if (isGuestMode) R.string.guest_logout_confirmation
+                        else R.string.settings_logout_confirmation
+                    )
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -231,11 +243,13 @@ fun SettingsScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.nav_settings)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                title = {
+                    GuestModeTopBarTitle(
+                        title = stringResource(R.string.nav_settings),
+                        isGuestMode = isGuestMode
+                    )
+                },
+                colors = guestModeTopAppBarColors(isGuestMode)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -246,6 +260,15 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (isGuestMode) {
+                Text(
+                    text = stringResource(R.string.guest_mode_warning),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
+            }
+
             SettingsSectionHeader(title = stringResource(R.string.settings_section_appearance))
 
             SettingsListTile(
@@ -264,27 +287,44 @@ fun SettingsScreen(
 
             SettingsSectionDivider()
 
-            SettingsSectionHeader(title = stringResource(R.string.settings_section_account))
+            if (!isGuestMode) {
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_account))
 
-            SettingsListTile(
-                title = currentUser?.displayName?.takeIf { it.isNotBlank() }
-                    ?: stringResource(R.string.settings_profile),
-                subtitle = currentUser?.email,
-                leadingContent = {
-                    UserAvatar(user = currentUser)
-                },
-                showChevron = true,
-                onClick = onProfileClick
-            )
+                SettingsListTile(
+                    title = currentUser?.displayName?.takeIf { it.isNotBlank() }
+                        ?: stringResource(R.string.settings_profile),
+                    subtitle = currentUser?.email,
+                    leadingContent = {
+                        UserAvatar(user = currentUser)
+                    },
+                    showChevron = true,
+                    onClick = onProfileClick
+                )
 
-            SettingsListTile(
-                title = stringResource(R.string.settings_change_password),
-                leadingIcon = Icons.Default.Lock,
-                showChevron = true,
-                onClick = { showPasswordDialog = true }
-            )
+                SettingsListTile(
+                    title = stringResource(R.string.settings_change_password),
+                    leadingIcon = Icons.Default.Lock,
+                    showChevron = true,
+                    onClick = { showPasswordDialog = true }
+                )
 
-            SettingsSectionDivider()
+                SettingsSectionDivider()
+            } else {
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_account))
+
+                SettingsListTile(
+                    title = currentUser?.displayName?.takeIf { it.isNotBlank() }
+                        ?: stringResource(R.string.guest_display_name),
+                    subtitle = stringResource(R.string.guest_mode_warning),
+                    leadingContent = {
+                        UserAvatar(user = currentUser)
+                    },
+                    showChevron = false,
+                    onClick = {}
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             SettingsSectionHeader(title = stringResource(R.string.settings_section_data))
 

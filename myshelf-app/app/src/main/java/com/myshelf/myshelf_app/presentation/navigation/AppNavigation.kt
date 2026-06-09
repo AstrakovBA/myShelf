@@ -38,7 +38,8 @@ fun AppNavigation(
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     val startDestination = when (authState) {
-        is AuthState.Authenticated -> Screen.Home.route
+        is AuthState.Authenticated,
+        is AuthState.Guest -> Screen.Home.route
         is AuthState.Loading,
         is AuthState.Unauthenticated,
         is AuthState.Error -> Screen.Login.route
@@ -46,10 +47,14 @@ fun AppNavigation(
 
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.Authenticated -> {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(navController.graph.id) { inclusive = true }
-                    launchSingleTop = true
+            is AuthState.Authenticated,
+            is AuthState.Guest -> {
+                val currentRoute = navController.currentDestination?.route
+                if (!isAuthenticatedDestination(currentRoute)) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
 
@@ -91,12 +96,13 @@ fun AppNavigation(
         composable(Screen.Home.route) { entry ->
             val itemsViewModel: ItemsViewModel = viewModel(entry, factory = viewModelFactory)
             val outfitsViewModel: OutfitsViewModel = viewModel(entry, factory = viewModelFactory)
+            val isGuestMode = authState is AuthState.Guest
             MainScreen(
-                viewModelFactory = viewModelFactory,
                 itemsViewModel = itemsViewModel,
                 outfitsViewModel = outfitsViewModel,
                 settingsViewModel = settingsViewModel,
                 authViewModel = authViewModel,
+                isGuestMode = isGuestMode,
                 appVersion = appVersion,
                 onNavigateToItemDetails = { itemId ->
                     navController.navigate(Screen.ItemDetails.createRoute(itemId))
@@ -114,10 +120,12 @@ fun AppNavigation(
                     navController.navigate(Screen.OutfitConstructor.createRoute(outfitId))
                 },
                 onNavigateToProfile = {
-                    navController.navigate(Screen.Profile.route)
+                    if (!authViewModel.isGuestMode()) {
+                        navController.navigate(Screen.Profile.route)
+                    }
                 },
                 onLogout = {
-                    authViewModel.logout()
+                    authViewModel.logoutCurrentSession()
                 }
             )
         }
@@ -222,4 +230,15 @@ fun AppNavigation(
             )
         }
     }
+}
+
+private fun isAuthenticatedDestination(route: String?): Boolean {
+    if (route == null) return false
+    return route == Screen.Home.route ||
+        route.startsWith("item_details/") ||
+        route == Screen.CreateItem.route ||
+        route.startsWith("${Screen.CreateItem.route}/") ||
+        route == Screen.OutfitConstructor.route ||
+        route.startsWith("${Screen.OutfitConstructor.route}/") ||
+        route == Screen.Profile.route
 }

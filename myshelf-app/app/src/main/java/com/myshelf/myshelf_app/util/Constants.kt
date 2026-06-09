@@ -16,6 +16,9 @@ object Constants {
     const val PREF_USER_EMAIL = "pref_user_email"
     const val PREF_LAST_SYNC_TIMESTAMP = "pref_last_sync_timestamp"
     const val PREF_IS_LOGGED_IN = "pref_is_logged_in"
+    const val PREF_IS_GUEST = "pref_is_guest"
+
+    const val GUEST_EMAIL = "guest@local"
 
     // DataStore
     const val DATASTORE_NAME = "myshelf_datastore"

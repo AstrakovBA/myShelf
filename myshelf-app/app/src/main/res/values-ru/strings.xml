@@ -70,6 +70,13 @@
     <string name="login_subtitle">Вход в аккаунт</string>
     <string name="login_button">Войти</string>
     <string name="login_no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="login_try_guest">Попробовать без регистрации</string>
+    <string name="guest_display_name">Гость</string>
+    <string name="guest_mode_badge">ГОСТЬ</string>
+    <string name="guest_mode_warning">Все данные будут удалены при выходе</string>
+    <string name="guest_logout_confirmation">Выйти из гостевого режима? Все локальные данные будут удалены безвозвратно.</string>
+    <string name="error_sync_guest_mode">Синхронизация доступна только для зарегистрированных пользователей</string>
+    <string name="error_guest_login">Не удалось войти в гостевой режим</string>
     <string name="register_title">Регистрация</string>
     <string name="register_subtitle">Создайте аккаунт в «Моей полке»</string>
     <string name="register_button">Зарегистрироваться</string>

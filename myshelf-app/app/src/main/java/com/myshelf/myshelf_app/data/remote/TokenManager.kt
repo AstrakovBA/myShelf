@@ -48,11 +48,28 @@ class TokenManager(context: Context) {
             putString(Constants.PREF_USER_ID, userId)
             email?.let { putString(Constants.PREF_USER_EMAIL, it) }
             putBoolean(Constants.PREF_IS_LOGGED_IN, true)
+            putBoolean(Constants.PREF_IS_GUEST, false)
         }
     }
 
+    fun saveGuestSession(guestId: String) {
+        prefs.edit {
+            putString(Constants.PREF_USER_ID, guestId)
+            remove(Constants.PREF_ACCESS_TOKEN)
+            remove(Constants.PREF_USER_EMAIL)
+            putBoolean(Constants.PREF_IS_LOGGED_IN, false)
+            putBoolean(Constants.PREF_IS_GUEST, true)
+        }
+    }
+
+    fun isGuestMode(): Boolean {
+        return prefs.getBoolean(Constants.PREF_IS_GUEST, false)
+    }
+
     fun isLoggedIn(): Boolean {
-        return prefs.getBoolean(Constants.PREF_IS_LOGGED_IN, false) && !getToken().isNullOrBlank()
+        return !isGuestMode() &&
+            prefs.getBoolean(Constants.PREF_IS_LOGGED_IN, false) &&
+            !getToken().isNullOrBlank()
     }
 
     fun clearSession() {
@@ -62,6 +79,7 @@ class TokenManager(context: Context) {
             remove(Constants.PREF_USER_ID)
             remove(Constants.PREF_USER_EMAIL)
             putBoolean(Constants.PREF_IS_LOGGED_IN, false)
+            putBoolean(Constants.PREF_IS_GUEST, false)
         }
     }
 

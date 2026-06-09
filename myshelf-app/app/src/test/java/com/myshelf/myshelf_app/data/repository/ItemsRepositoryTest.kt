@@ -38,6 +38,7 @@ class ItemsRepositoryTest {
 
     @Before
     fun setUp() {
+        every { tokenManager.isGuestMode() } returns false
         repository = ItemsRepository(itemDao, apiService, tokenManager)
     }
 
@@ -101,6 +102,18 @@ class ItemsRepositoryTest {
         assertEquals(userId, capturedItem.captured.userId)
         assertEquals("Blue Shirt", capturedItem.captured.name)
         coVerify(exactly = 1) { itemDao.upsertItem(any()) }
+    }
+
+    @Test
+    fun `syncItemsWithServer returns error in guest mode`() = runTest {
+        mockkObject(StringResources)
+        every { StringResources.getString(any()) } returns "Guest sync disabled"
+        every { tokenManager.isGuestMode() } returns true
+
+        val result = repository.syncItemsWithServer(userId)
+
+        assertTrue(result.isError)
+        coVerify(exactly = 0) { itemDao.getDirtyItems() }
     }
 
     @Test

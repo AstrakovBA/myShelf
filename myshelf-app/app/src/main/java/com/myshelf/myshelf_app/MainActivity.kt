@@ -1,6 +1,5 @@
 package com.myshelf.myshelf_app
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,9 +15,6 @@ import com.myshelf.myshelf_app.presentation.settings.Theme
 import com.myshelf.myshelf_app.presentation.viewmodel.SettingsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ViewModelFactory
 import com.myshelf.myshelf_app.ui.theme.MyShelfTheme
-import com.myshelf.myshelf_app.util.LocaleManager
-import com.myshelf.myshelf_app.util.StringResources
-
 class MainActivity : ComponentActivity() {
 
     private val viewModelFactory by lazy {
@@ -27,13 +23,6 @@ class MainActivity : ComponentActivity() {
 
     private val appVersion: String by lazy {
         packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0"
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        val language = LocaleManager.getSavedLanguage(newBase)
-        val localizedContext = LocaleManager.wrapContext(newBase, language)
-        StringResources.init(localizedContext)
-        super.attachBaseContext(localizedContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,7 +1,11 @@
 package com.myshelf.myshelf_app.data.repository
 
+import com.myshelf.myshelf_app.data.local.dao.ItemDao
+import com.myshelf.myshelf_app.data.local.dao.OutfitDao
 import com.myshelf.myshelf_app.data.local.dao.UserDao
 import com.myshelf.myshelf_app.data.local.entity.UserLocal
+import com.myshelf.myshelf_app.util.Constants
+import java.util.UUID
 import com.myshelf.myshelf_app.data.remote.ApiCallHandler
 import com.myshelf.myshelf_app.data.remote.TokenManager
 import com.myshelf.myshelf_app.data.remote.WardrobeApiService
@@ -20,7 +24,9 @@ import com.myshelf.myshelf_app.util.StringResources
 class AuthRepository(
     private val apiService: WardrobeApiService,
     private val tokenManager: TokenManager,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val itemDao: ItemDao,
+    private val outfitDao: OutfitDao
 ) {
 
     suspend fun register(
@@ -117,7 +123,42 @@ class AuthRepository(
 
     fun isLoggedIn(): Boolean = tokenManager.isLoggedIn()
 
+    fun isGuestMode(): Boolean = tokenManager.isGuestMode()
+
     fun getUserId(): String? = tokenManager.getUserId()
+
+    suspend fun loginAsGuest(): Result<String> {
+        return try {
+            if (tokenManager.isGuestMode()) {
+                logoutGuest()
+            }
+            val guestId = UUID.randomUUID().toString()
+            tokenManager.saveGuestSession(guestId)
+            userDao.insert(
+                UserLocal(
+                    id = guestId,
+                    email = Constants.GUEST_EMAIL,
+                    displayName = StringResources.getString(R.string.guest_display_name)
+                )
+            )
+            Result.Success(guestId)
+        } catch (e: Exception) {
+            Result.Error(
+                e.localizedMessage ?: StringResources.getString(R.string.error_guest_login),
+                e
+            )
+        }
+    }
+
+    suspend fun logoutGuest() {
+        val guestId = tokenManager.getUserId() ?: return
+        if (!tokenManager.isGuestMode()) return
+
+        itemDao.deleteAllByUser(guestId)
+        outfitDao.deleteAllByUser(guestId)
+        userDao.deleteById(guestId)
+        tokenManager.clearSession()
+    }
 
     suspend fun getCurrentUser(): UserLocal? {
         val userId = tokenManager.getUserId() ?: return null
@@ -128,7 +169,17 @@ class AuthRepository(
         tokenManager.clearSession()
     }
 
+    private suspend fun clearGuestDataIfPresent() {
+        if (!tokenManager.isGuestMode()) return
+        val guestId = tokenManager.getUserId() ?: return
+        itemDao.deleteAllByUser(guestId)
+        outfitDao.deleteAllByUser(guestId)
+        userDao.deleteById(guestId)
+        tokenManager.clearSession()
+    }
+
     private suspend fun persistAuth(response: AuthResponse) {
+        clearGuestDataIfPresent()
         val profile = response.profile
         val userId = response.userId ?: profile?.id
         if (userId == null) {

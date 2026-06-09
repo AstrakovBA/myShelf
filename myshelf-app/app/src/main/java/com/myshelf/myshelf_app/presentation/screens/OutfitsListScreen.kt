@@ -48,7 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.myshelf.myshelf_app.R
 import com.myshelf.myshelf_app.data.local.entity.ItemLocal
 import com.myshelf.myshelf_app.data.local.relation.OutfitWithSlots
+import com.myshelf.myshelf_app.presentation.components.GuestModeTopBarTitle
 import com.myshelf.myshelf_app.presentation.components.OutfitCard
+import com.myshelf.myshelf_app.presentation.components.guestModeTopAppBarColors
 import com.myshelf.myshelf_app.presentation.components.OutfitDetailsDialog
 import com.myshelf.myshelf_app.presentation.components.buildOutfitSlotDisplays
 import com.myshelf.myshelf_app.presentation.components.resolveOutfitSlotItems
@@ -61,6 +63,7 @@ import com.myshelf.myshelf_app.util.Resource
 fun OutfitsListScreen(
     viewModel: OutfitsViewModel,
     itemsViewModel: ItemsViewModel,
+    isGuestMode: Boolean = false,
     onCreateOutfitClick: () -> Unit = {},
     onEditOutfitClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
@@ -138,11 +141,13 @@ fun OutfitsListScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.nav_outfits)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                title = {
+                    GuestModeTopBarTitle(
+                        title = stringResource(R.string.nav_outfits),
+                        isGuestMode = isGuestMode
+                    )
+                },
+                colors = guestModeTopAppBarColors(isGuestMode)
             )
         },
         floatingActionButton = {
