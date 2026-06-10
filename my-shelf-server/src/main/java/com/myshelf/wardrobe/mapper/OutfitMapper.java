@@ -32,6 +32,7 @@ public class OutfitMapper {
                 .user(owner)
                 .name(dto.getName())
                 .description(dto.getDescription())
+                .season(dto.getSeason())
                 .slots(new ArrayList<>())
                 .build();
     }
@@ -51,6 +52,7 @@ public class OutfitMapper {
                 entity.getId(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getSeason(),
                 slotDTOs
         );
     }
@@ -64,6 +66,7 @@ public class OutfitMapper {
     public void updateEntityFromDTO(Outfit entity, OutfitDTO dto) {
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
+        entity.setSeason(dto.getSeason());
     }
 
     /**

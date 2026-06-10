@@ -14,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import jakarta.persistence.EntityNotFoundException;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -370,7 +372,7 @@ class OutfitServiceTest {
         when(outfitRepository.save(any(Outfit.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        OutfitDTO result = outfitService.updateOutfit(outfitId, updateDTO);
+        OutfitDTO result = outfitService.updateOutfit(outfitId, userId, updateDTO);
 
         // Assert
         assertThat(result.getName()).isEqualTo("Updated Outfit");
@@ -391,8 +393,8 @@ class OutfitServiceTest {
         when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, updateDTO))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, userId, updateDTO))
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Образ не найден");
 
         verify(outfitRepository).findWithSlots(outfitId);
@@ -415,9 +417,23 @@ class OutfitServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
 
         // Act & Assert
-        assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, mismatchDTO))
+        assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, userId, mismatchDTO))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Категория вещи 'TOP' не соответствует типу слота 'SHOES'");
+    }
+
+    @Test
+    @DisplayName("updateOutfit — образ принадлежит другому пользователю")
+    void updateOutfit_accessDenied() {
+        UUID otherUserId = UUID.randomUUID();
+        OutfitDTO updateDTO = new OutfitDTO(outfitId, "Updated", null, List.of());
+        when(outfitRepository.findWithSlots(outfitId)).thenReturn(Optional.of(testOutfit));
+
+        assertThatThrownBy(() -> outfitService.updateOutfit(outfitId, otherUserId, updateDTO))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Нет доступа");
+
+        verify(outfitRepository, never()).save(any());
     }
 
     // ===== DELETE =====
@@ -425,29 +441,37 @@ class OutfitServiceTest {
     @Test
     @DisplayName("deleteOutfit — успешное удаление образа")
     void deleteOutfit_success() {
-        // Arrange
-        when(outfitRepository.existsById(outfitId)).thenReturn(true);
+        when(outfitRepository.findById(outfitId)).thenReturn(Optional.of(testOutfit));
 
-        // Act
-        outfitService.deleteOutfit(outfitId);
+        outfitService.deleteOutfit(outfitId, userId);
 
-        // Assert
-        verify(outfitRepository).existsById(outfitId);
-        verify(outfitRepository).deleteById(outfitId);
+        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository).delete(testOutfit);
     }
 
     @Test
     @DisplayName("deleteOutfit — образ не найден при удалении")
     void deleteOutfit_notFound() {
-        // Arrange
-        when(outfitRepository.existsById(outfitId)).thenReturn(false);
+        when(outfitRepository.findById(outfitId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThatThrownBy(() -> outfitService.deleteOutfit(outfitId))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> outfitService.deleteOutfit(outfitId, userId))
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Образ не найден");
 
-        verify(outfitRepository).existsById(outfitId);
-        verify(outfitRepository, never()).deleteById(any());
+        verify(outfitRepository).findById(outfitId);
+        verify(outfitRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("deleteOutfit — образ принадлежит другому пользователю")
+    void deleteOutfit_accessDenied() {
+        UUID otherUserId = UUID.randomUUID();
+        when(outfitRepository.findById(outfitId)).thenReturn(Optional.of(testOutfit));
+
+        assertThatThrownBy(() -> outfitService.deleteOutfit(outfitId, otherUserId))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Нет доступа");
+
+        verify(outfitRepository, never()).delete(any());
     }
 }

@@ -85,8 +85,10 @@ public class ItemController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ItemDTO> updateItem(@PathVariable UUID id,
-                                              @Valid @RequestBody ItemDTO dto) {
-        ItemDTO updatedItem = itemService.updateItem(id, dto);
+                                              @Valid @RequestBody ItemDTO dto,
+                                              Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        ItemDTO updatedItem = itemService.updateItem(id, userId, dto);
         return ResponseEntity.ok(updatedItem);
     }
 
@@ -96,8 +98,10 @@ public class ItemController {
      * @param id идентификатор вещи
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable UUID id) {
-        itemService.deleteItem(id);
+    public ResponseEntity<Void> deleteItem(@PathVariable UUID id,
+                                           Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        itemService.deleteItem(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

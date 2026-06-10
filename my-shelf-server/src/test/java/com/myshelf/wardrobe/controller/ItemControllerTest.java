@@ -161,15 +161,16 @@ class ItemControllerTest {
     void updateItem_returnsOk() throws Exception {
         ItemDTO requestDto = new ItemDTO(null, "Updated", "New desc", null, Category.BOTTOM, Season.AUTUMN);
         ItemDTO updatedDto = new ItemDTO(itemId, "Updated", "New desc", null, Category.BOTTOM, Season.AUTUMN);
-        when(itemService.updateItem(eq(itemId), any(ItemDTO.class))).thenReturn(updatedDto);
+        when(itemService.updateItem(eq(itemId), eq(userId), any(ItemDTO.class))).thenReturn(updatedDto);
 
         mockMvc.perform(put("/api/items/{id}", itemId)
+                        .with(authenticatedUser())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated"));
 
-        verify(itemService).updateItem(eq(itemId), any(ItemDTO.class));
+        verify(itemService).updateItem(eq(itemId), eq(userId), any(ItemDTO.class));
     }
 
     @Test
@@ -188,10 +189,10 @@ class ItemControllerTest {
     @Test
     @DisplayName("DELETE /api/items/{id} — 204 No Content")
     void deleteItem_returnsNoContent() throws Exception {
-        mockMvc.perform(delete("/api/items/{id}", itemId))
+        mockMvc.perform(delete("/api/items/{id}", itemId).with(authenticatedUser()))
                 .andExpect(status().isNoContent());
 
-        verify(itemService).deleteItem(itemId);
+        verify(itemService).deleteItem(itemId, userId);
     }
 }
 

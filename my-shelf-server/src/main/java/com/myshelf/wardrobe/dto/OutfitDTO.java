@@ -1,5 +1,6 @@
 package com.myshelf.wardrobe.dto;
 
+import com.myshelf.wardrobe.entity.Season;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -17,6 +18,8 @@ public class OutfitDTO {
 
     private String description;
 
+    private Season season;
+
     @NotEmpty(message = "Образ должен содержать хотя бы один слот")
     private List<OutfitSlotDTO> slots;
 
@@ -24,9 +27,14 @@ public class OutfitDTO {
     }
 
     public OutfitDTO(UUID id, String name, String description, List<OutfitSlotDTO> slots) {
+        this(id, name, description, null, slots);
+    }
+
+    public OutfitDTO(UUID id, String name, String description, Season season, List<OutfitSlotDTO> slots) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.season = season;
         this.slots = slots;
     }
 
@@ -52,6 +60,14 @@ public class OutfitDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Season getSeason() {
+        return season;
+    }
+
+    public void setSeason(Season season) {
+        this.season = season;
     }
 
     public List<OutfitSlotDTO> getSlots() {
