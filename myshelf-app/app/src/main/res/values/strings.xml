@@ -88,6 +88,10 @@
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">User profile (coming soon)</string>
     <string name="profile_guest_only">Profile is only available for registered users</string>
+    <string name="profile_display_name">Display name</string>
+    <string name="profile_avatar_url">Avatar URL</string>
+    <string name="profile_pick_avatar">Pick avatar</string>
+    <string name="success_profile_updated">Profile updated</string>
 
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_account">Account</string>
@@ -117,6 +121,9 @@
     <string name="settings_version">Version %1$s</string>
     <string name="settings_logout">Sign out</string>
     <string name="settings_logout_confirmation">Are you sure you want to sign out?</string>
+    <string name="settings_delete_account">Delete account</string>
+    <string name="settings_delete_account_confirmation">This will permanently delete your account and all data. Enter your password to confirm.</string>
+    <string name="error_delete_account">Failed to delete account</string>
 
     <string name="error_item_name_required">Enter item name</string>
     <string name="error_category_required">Select a category</string>

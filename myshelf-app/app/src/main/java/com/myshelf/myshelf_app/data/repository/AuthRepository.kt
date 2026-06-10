@@ -13,6 +13,7 @@ import com.myshelf.myshelf_app.data.remote.authorizationHeader
 import com.myshelf.myshelf_app.data.remote.dto.AuthRequest
 import com.myshelf.myshelf_app.data.remote.dto.AuthResponse
 import com.myshelf.myshelf_app.data.remote.dto.PasswordChangeRequest
+import com.myshelf.myshelf_app.data.remote.dto.PasswordConfirmRequest
 import com.myshelf.myshelf_app.data.remote.dto.UserProfileRequest
 import com.myshelf.myshelf_app.data.remote.dto.UserRegistrationRequest
 import com.myshelf.myshelf_app.data.remote.login
@@ -26,7 +27,8 @@ class AuthRepository(
     private val tokenManager: TokenManager,
     private val userDao: UserDao,
     private val itemDao: ItemDao,
-    private val outfitDao: OutfitDao
+    private val outfitDao: OutfitDao,
+    private val settingsRepository: SettingsRepository
 ) {
 
     suspend fun register(
@@ -105,6 +107,39 @@ class AuthRepository(
         }
     }
 
+    suspend fun deleteAccount(password: String): Result<Unit> {
+        if (!tokenManager.isLoggedIn()) {
+            return Result.Error(StringResources.getString(R.string.error_auth_required))
+        }
+
+        val userId = tokenManager.getUserId()
+            ?: return Result.Error(StringResources.getString(R.string.error_auth_required))
+
+        return try {
+            val authHeader = tokenManager.authorizationHeader()
+            val request = PasswordConfirmRequest(currentPassword = password)
+            when (
+                val resource = ApiCallHandler.safeApiCall {
+                    apiService.deleteAccount(authHeader, request)
+                }.toResultUnit()
+            ) {
+                is Result.Success -> {
+                    clearLocalUserData(userId)
+                    settingsRepository.clearAll()
+                    tokenManager.clearSession()
+                    Result.Success(Unit)
+                }
+
+                is Result.Error -> resource
+            }
+        } catch (e: Exception) {
+            Result.Error(
+                e.localizedMessage ?: StringResources.getString(R.string.error_delete_account),
+                e
+            )
+        }
+    }
+
     suspend fun changePassword(oldPass: String, newPass: String): Result<Unit> {
         if (!tokenManager.isLoggedIn()) {
             return Result.Error(StringResources.getString(R.string.error_auth_required))
@@ -167,6 +202,12 @@ class AuthRepository(
 
     fun logout() {
         tokenManager.clearSession()
+    }
+
+    private suspend fun clearLocalUserData(userId: String) {
+        itemDao.deleteAllByUser(userId)
+        outfitDao.deleteAllByUser(userId)
+        userDao.deleteById(userId)
     }
 
     private suspend fun clearGuestDataIfPresent() {

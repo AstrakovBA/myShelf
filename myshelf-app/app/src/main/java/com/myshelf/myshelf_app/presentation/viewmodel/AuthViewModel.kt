@@ -26,6 +26,18 @@ class AuthViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _isUpdatingProfile = MutableStateFlow(false)
+    val isUpdatingProfile: StateFlow<Boolean> = _isUpdatingProfile.asStateFlow()
+
+    private val _profileSaved = MutableStateFlow(false)
+    val profileSaved: StateFlow<Boolean> = _profileSaved.asStateFlow()
+
+    private val _isDeletingAccount = MutableStateFlow(false)
+    val isDeletingAccount: StateFlow<Boolean> = _isDeletingAccount.asStateFlow()
+
+    private val _accountDeleted = MutableStateFlow(false)
+    val accountDeleted: StateFlow<Boolean> = _accountDeleted.asStateFlow()
+
     init {
         checkAuthStatus()
     }
@@ -190,11 +202,14 @@ class AuthViewModel(
     fun updateProfile(displayName: String?, avatarUrl: String?) {
         viewModelScope.launch {
             try {
+                _isUpdatingProfile.value = true
+                _profileSaved.value = false
                 _errorMessage.value = null
 
                 when (val result = repository.updateProfile(displayName, avatarUrl)) {
                     is Result.Success -> {
                         _currentUser.value = repository.getCurrentUser()
+                        _profileSaved.value = true
                     }
 
                     is Result.Error -> {
@@ -203,6 +218,34 @@ class AuthViewModel(
                 }
             } catch (e: Exception) {
                 _errorMessage.value = getErrorMessage(e)
+            } finally {
+                _isUpdatingProfile.value = false
+            }
+        }
+    }
+
+    fun deleteAccount(password: String) {
+        viewModelScope.launch {
+            try {
+                _isDeletingAccount.value = true
+                _accountDeleted.value = false
+                _errorMessage.value = null
+
+                when (val result = repository.deleteAccount(password)) {
+                    is Result.Success -> {
+                        _currentUser.value = null
+                        _authState.value = AuthState.Unauthenticated
+                        _accountDeleted.value = true
+                    }
+
+                    is Result.Error -> {
+                        _errorMessage.value = result.message
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = getErrorMessage(e)
+            } finally {
+                _isDeletingAccount.value = false
             }
         }
     }
@@ -217,11 +260,18 @@ class AuthViewModel(
         }
     }
 
+    fun consumeProfileSaved() {
+        _profileSaved.value = false
+    }
+
+    fun consumeAccountDeleted() {
+        _accountDeleted.value = false
+    }
+
     fun clearError() {
         _errorMessage.value = null
     }
 
-    /** Сбрасывает состояние ошибки после показа Snackbar, чтобы можно было повторить вход. */
     fun clearAuthError() {
         _errorMessage.value = null
         if (_authState.value is AuthState.Error) {

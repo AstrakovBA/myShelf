@@ -32,6 +32,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -53,6 +56,7 @@ import com.myshelf.myshelf_app.domain.model.Season
 import com.myshelf.myshelf_app.presentation.item.ItemFormState
 import com.myshelf.myshelf_app.presentation.item.ItemUpdates
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
+import com.myshelf.myshelf_app.util.ImageStorageHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,9 +71,20 @@ fun CreateItemScreen(
     val itemSaved by viewModel.itemSaved.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var formState by remember(itemId) { mutableStateOf(ItemFormState()) }
     var isFormLoading by remember(itemId) { mutableStateOf(isEditMode) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            ImageStorageHelper.copyToCache(context, it)?.let { path ->
+                formState = formState.copy(imageUrl = path)
+            }
+        }
+    }
 
     val nameRequiredError = stringResource(R.string.error_item_name_required)
     val categoryRequiredError = stringResource(R.string.error_category_required)
@@ -174,13 +189,7 @@ fun CreateItemScreen(
         ) {
             ImagePickerSection(
                 imageUrl = formState.imageUrl,
-                onAddPhotoClick = {
-                    formState = formState.copy(
-                        imageUrl = formState.imageUrl.ifBlank {
-                            "https://via.placeholder.com/300x400?text=MyShelf"
-                        }
-                    )
-                }
+                onAddPhotoClick = { imagePickerLauncher.launch("image/*") }
             )
 
             OutlinedTextField(

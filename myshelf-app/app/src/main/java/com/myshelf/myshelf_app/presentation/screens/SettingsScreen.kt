@@ -77,6 +77,9 @@ fun SettingsScreen(
     val isSyncing by settingsViewModel.isSyncing.collectAsStateWithLifecycle()
     val isClearingCache by settingsViewModel.isClearingCache.collectAsStateWithLifecycle()
     val isChangingPassword by settingsViewModel.isChangingPassword.collectAsStateWithLifecycle()
+    val isDeletingAccount by authViewModel.isDeletingAccount.collectAsStateWithLifecycle()
+    val accountDeleted by authViewModel.accountDeleted.collectAsStateWithLifecycle()
+    val authErrorMessage by authViewModel.errorMessage.collectAsStateWithLifecycle()
     val errorMessage by settingsViewModel.errorMessage.collectAsStateWithLifecycle()
     val successMessage by settingsViewModel.successMessage.collectAsStateWithLifecycle()
     val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
@@ -88,6 +91,7 @@ fun SettingsScreen(
     var showPasswordDialog by remember { mutableStateOf(false) }
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var showLanguageReloadDialog by remember { mutableStateOf(false) }
     var pendingLanguage by remember { mutableStateOf<String?>(null) }
 
@@ -101,6 +105,21 @@ fun SettingsScreen(
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
             settingsViewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(authErrorMessage) {
+        authErrorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(accountDeleted) {
+        if (accountDeleted) {
+            authViewModel.consumeAccountDeleted()
+            showDeleteAccountDialog = false
+            onLogout()
         }
     }
 
@@ -177,6 +196,14 @@ fun SettingsScreen(
                 settingsViewModel.changePassword(old, new, confirm)
             },
             onDismiss = { showPasswordDialog = false }
+        )
+    }
+
+    if (showDeleteAccountDialog) {
+        DeleteAccountDialog(
+            isLoading = isDeletingAccount,
+            onConfirm = { password -> authViewModel.deleteAccount(password) },
+            onDismiss = { if (!isDeletingAccount) showDeleteAccountDialog = false }
         )
     }
 
@@ -306,6 +333,15 @@ fun SettingsScreen(
                     leadingIcon = Icons.Default.Lock,
                     showChevron = true,
                     onClick = { showPasswordDialog = true }
+                )
+
+                SettingsListTile(
+                    title = stringResource(R.string.settings_delete_account),
+                    leadingIcon = Icons.Default.Delete,
+                    titleColor = MaterialTheme.colorScheme.error,
+                    iconTint = MaterialTheme.colorScheme.error,
+                    showChevron = false,
+                    onClick = { showDeleteAccountDialog = true }
                 )
 
                 SettingsSectionDivider()
@@ -547,6 +583,100 @@ private fun ChangePasswordDialog(
                     CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                 } else {
                     Text(stringResource(R.string.save))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isLoading) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    isLoading: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_delete_account)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.settings_delete_account_confirmation))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.settings_old_password)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(password) },
+                enabled = !isLoading && password.isNotBlank()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = stringResource(R.string.settings_delete_account),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isLoading) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun DeleteAccountDialog(
+    isLoading: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_delete_account)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.settings_delete_account_confirmation))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.settings_old_password)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(password) },
+                enabled = !isLoading && password.isNotBlank()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = stringResource(R.string.settings_delete_account),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         },

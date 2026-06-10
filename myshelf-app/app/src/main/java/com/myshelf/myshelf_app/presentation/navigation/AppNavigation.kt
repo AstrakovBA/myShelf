@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -18,8 +19,10 @@ import com.myshelf.myshelf_app.presentation.screens.CreateItemScreen
 import com.myshelf.myshelf_app.presentation.screens.ItemDetailsScreen
 import com.myshelf.myshelf_app.presentation.screens.LoginScreen
 import com.myshelf.myshelf_app.presentation.screens.OutfitConstructorScreen
+import com.myshelf.myshelf_app.data.remote.RetrofitClient
 import com.myshelf.myshelf_app.presentation.screens.PlaceholderScreen
 import com.myshelf.myshelf_app.presentation.screens.RegisterScreen
+import com.myshelf.myshelf_app.presentation.screens.profile.ProfileScreen
 import com.myshelf.myshelf_app.presentation.viewmodel.AuthViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.ItemsViewModel
 import com.myshelf.myshelf_app.presentation.viewmodel.OutfitsViewModel
@@ -34,8 +37,16 @@ fun AppNavigation(
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
+    val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel(factory = viewModelFactory)
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        RetrofitClient.init(context)
+        RetrofitClient.getTokenManager(context).sessionExpiredEvents.collect {
+            authViewModel.logout()
+        }
+    }
 
     val startDestination = when (authState) {
         is AuthState.Authenticated,
@@ -230,9 +241,9 @@ fun AppNavigation(
                     subtitleRes = com.myshelf.myshelf_app.R.string.profile_guest_only
                 )
             } else {
-                PlaceholderScreen(
-                    titleRes = com.myshelf.myshelf_app.R.string.profile_title,
-                    subtitleRes = com.myshelf.myshelf_app.R.string.profile_subtitle
+                ProfileScreen(
+                    authViewModel = authViewModel,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

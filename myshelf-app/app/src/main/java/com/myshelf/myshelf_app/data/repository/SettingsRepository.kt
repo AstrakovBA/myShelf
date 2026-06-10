@@ -66,6 +66,10 @@ class SettingsRepository(
         return runBlocking { getLanguage() }
     }
 
+    suspend fun clearAll() {
+        dataStore.edit { preferences -> preferences.clear() }
+    }
+
     companion object {
         private val KEY_THEME_MODE = stringPreferencesKey(Constants.DS_THEME_MODE)
         private val KEY_LANGUAGE = stringPreferencesKey(Constants.DS_LANGUAGE)

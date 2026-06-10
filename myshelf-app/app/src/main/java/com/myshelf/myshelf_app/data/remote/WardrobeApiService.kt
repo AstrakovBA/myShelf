@@ -6,6 +6,7 @@ import com.myshelf.myshelf_app.data.remote.dto.ItemResponse
 import com.myshelf.myshelf_app.data.remote.dto.OutfitRequest
 import com.myshelf.myshelf_app.data.remote.dto.OutfitResponse
 import com.myshelf.myshelf_app.data.remote.dto.PasswordChangeRequest
+import com.myshelf.myshelf_app.data.remote.dto.PasswordConfirmRequest
 import com.myshelf.myshelf_app.data.remote.dto.UserProfileRequest
 import com.myshelf.myshelf_app.data.remote.dto.UserProfileResponse
 import com.myshelf.myshelf_app.data.remote.dto.UserRegistrationRequest
@@ -121,5 +122,11 @@ interface WardrobeApiService {
     suspend fun changePassword(
         @Header("Authorization") token: String,
         @Body request: PasswordChangeRequest
+    ): Response<Unit>
+
+    @DELETE("users/account")
+    suspend fun deleteAccount(
+        @Header("Authorization") token: String,
+        @Body request: PasswordConfirmRequest
     ): Response<Unit>
 }

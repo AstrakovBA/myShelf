@@ -4,11 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.myshelf.myshelf_app.util.Constants
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class TokenManager(context: Context) {
 
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
+
+    private val _sessionExpiredEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val sessionExpiredEvents: SharedFlow<Unit> = _sessionExpiredEvents.asSharedFlow()
 
     fun saveToken(token: String) {
         prefs.edit {
@@ -81,6 +87,10 @@ class TokenManager(context: Context) {
             putBoolean(Constants.PREF_IS_LOGGED_IN, false)
             putBoolean(Constants.PREF_IS_GUEST, false)
         }
+    }
+
+    fun notifySessionExpired() {
+        _sessionExpiredEvents.tryEmit(Unit)
     }
 
     companion object {

@@ -5,7 +5,7 @@ import okhttp3.Response
 
 /**
  * Добавляет JWT в заголовок Authorization, если запрос не публичный
- * и заголовок ещё не задан явно.
+ * и заголовок ещё не задан явно. При 401 сбрасывает сессию.
  */
 class AuthInterceptor(
     private val tokenManager: TokenManager
@@ -15,22 +15,27 @@ class AuthInterceptor(
         val originalRequest = chain.request()
         val path = originalRequest.url.encodedPath
 
-        if (isPublicEndpoint(path)) {
-            return chain.proceed(originalRequest)
+        val request = when {
+            isPublicEndpoint(path) -> originalRequest
+            originalRequest.header(HEADER_AUTHORIZATION) != null -> originalRequest
+            else -> {
+                val bearerToken = tokenManager.getBearerToken()
+                if (bearerToken == null) {
+                    originalRequest
+                } else {
+                    originalRequest.newBuilder()
+                        .header(HEADER_AUTHORIZATION, bearerToken)
+                        .build()
+                }
+            }
         }
 
-        if (originalRequest.header(HEADER_AUTHORIZATION) != null) {
-            return chain.proceed(originalRequest)
+        val response = chain.proceed(request)
+        if (response.code == 401 && !isPublicEndpoint(path)) {
+            tokenManager.clearSession()
+            tokenManager.notifySessionExpired()
         }
-
-        val bearerToken = tokenManager.getBearerToken()
-            ?: return chain.proceed(originalRequest)
-
-        val authenticatedRequest = originalRequest.newBuilder()
-            .header(HEADER_AUTHORIZATION, bearerToken)
-            .build()
-
-        return chain.proceed(authenticatedRequest)
+        return response
     }
 
     private fun isPublicEndpoint(path: String): Boolean {
