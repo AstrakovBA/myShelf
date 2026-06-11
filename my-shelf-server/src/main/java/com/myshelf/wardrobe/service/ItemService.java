@@ -6,8 +6,10 @@ import com.myshelf.wardrobe.entity.User;
 import com.myshelf.wardrobe.mapper.ItemMapper;
 import com.myshelf.wardrobe.repository.ItemRepository;
 import com.myshelf.wardrobe.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,9 +95,13 @@ public class ItemService {
      * @param itemDTO новые данные
      * @return обновлённая вещь
      */
-    public ItemDTO updateItem(UUID itemId, ItemDTO itemDTO) {
+    public ItemDTO updateItem(UUID itemId, UUID currentUserId, ItemDTO itemDTO) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Вещь не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Вещь не найдена"));
+
+        if (!item.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Нет доступа к этой вещи");
+        }
 
         itemMapper.updateEntityFromDTO(item, itemDTO);
         Item updatedItem = itemRepository.save(item);
@@ -143,10 +149,14 @@ public class ItemService {
      *
      * @param itemId идентификатор вещи
      */
-    public void deleteItem(UUID itemId) {
-        if (!itemRepository.existsById(itemId)) {
-            throw new IllegalArgumentException("Вещь не найдена");
+    public void deleteItem(UUID itemId, UUID currentUserId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Вещь не найдена"));
+
+        if (!item.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Нет доступа к этой вещи");
         }
-        itemRepository.deleteById(itemId);
+
+        itemRepository.delete(item);
     }
 }

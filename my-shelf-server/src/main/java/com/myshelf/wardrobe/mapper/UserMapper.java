@@ -1,5 +1,6 @@
 package com.myshelf.wardrobe.mapper;
 
+import com.myshelf.wardrobe.dto.UpdateProfileDTO;
 import com.myshelf.wardrobe.dto.UserProfileDTO;
 import com.myshelf.wardrobe.entity.User;
 import org.springframework.stereotype.Component;
@@ -34,5 +35,20 @@ public class UserMapper {
     public void updateEntityFromDTO(User entity, UserProfileDTO dto) {
         entity.setDisplayName(dto.getDisplayName());
         entity.setAvatarUrl(dto.getAvatarUrl());
+    }
+
+    /**
+     * Применяет к сущности только переданные поля обновления профиля.
+     *
+     * @param entity обновляемая сущность
+     * @param dto источник данных
+     */
+    public void updateEntityFromDTO(User entity, UpdateProfileDTO dto) {
+        if (dto.getDisplayName() != null) {
+            entity.setDisplayName(dto.getDisplayName());
+        }
+        if (dto.getAvatarUrl() != null) {
+            entity.setAvatarUrl(dto.getAvatarUrl());
+        }
     }
 }

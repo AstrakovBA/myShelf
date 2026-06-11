@@ -2,8 +2,11 @@ package com.myshelf.wardrobe.service;
 
 import com.myshelf.wardrobe.dto.AuthResponse;
 import com.myshelf.wardrobe.dto.PasswordChangeDTO;
+import com.myshelf.wardrobe.dto.PasswordConfirmRequest;
+import com.myshelf.wardrobe.dto.UpdateProfileDTO;
 import com.myshelf.wardrobe.dto.UserProfileDTO;
 import com.myshelf.wardrobe.dto.UserRegistrationDTO;
+import jakarta.persistence.EntityNotFoundException;
 import com.myshelf.wardrobe.entity.User;
 import com.myshelf.wardrobe.entity.UserSettings;
 import com.myshelf.wardrobe.mapper.UserMapper;
@@ -134,5 +137,38 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
         return userMapper.toDTO(user);
+    }
+
+    /**
+     * Обновляет отображаемое имя и аватар пользователя.
+     *
+     * @param userId идентификатор пользователя
+     * @param dto новые данные профиля
+     * @return обновлённый профиль
+     */
+    public UserProfileDTO updateProfile(UUID userId, UpdateProfileDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        userMapper.updateEntityFromDTO(user, dto);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDTO(savedUser);
+    }
+
+    /**
+     * Удаляет учётную запись после проверки текущего пароля.
+     *
+     * @param userId идентификатор пользователя
+     * @param request подтверждение паролем
+     */
+    public void deleteAccount(UUID userId, PasswordConfirmRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Неверный пароль");
+        }
+
+        userRepository.deleteById(userId);
     }
 }

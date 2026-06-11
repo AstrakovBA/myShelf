@@ -85,8 +85,10 @@ public class OutfitController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<OutfitDTO> updateOutfit(@PathVariable UUID id,
-                                                  @Valid @RequestBody OutfitDTO dto) {
-        OutfitDTO updatedOutfit = outfitService.updateOutfit(id, dto);
+                                                  @Valid @RequestBody OutfitDTO dto,
+                                                  Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        OutfitDTO updatedOutfit = outfitService.updateOutfit(id, userId, dto);
         return ResponseEntity.ok(updatedOutfit);
     }
 
@@ -96,8 +98,10 @@ public class OutfitController {
      * @param id идентификатор образа
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOutfit(@PathVariable UUID id) {
-        outfitService.deleteOutfit(id);
+    public ResponseEntity<Void> deleteOutfit(@PathVariable UUID id,
+                                             Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        outfitService.deleteOutfit(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

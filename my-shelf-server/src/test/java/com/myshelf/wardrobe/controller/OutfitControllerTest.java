@@ -173,15 +173,16 @@ class OutfitControllerTest {
         OutfitSlotDTO slotRequest = new OutfitSlotDTO(null, itemId, Category.TOP);
         OutfitDTO requestDto = new OutfitDTO(null, "Updated Outfit", "New desc", List.of(slotRequest));
         OutfitDTO updatedDto = new OutfitDTO(outfitId, "Updated Outfit", "New desc", List.of(slotRequest));
-        when(outfitService.updateOutfit(eq(outfitId), any(OutfitDTO.class))).thenReturn(updatedDto);
+        when(outfitService.updateOutfit(eq(outfitId), eq(userId), any(OutfitDTO.class))).thenReturn(updatedDto);
 
         mockMvc.perform(put("/api/outfits/{id}", outfitId)
+                        .with(authenticatedUser())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated Outfit"));
 
-        verify(outfitService).updateOutfit(eq(outfitId), any(OutfitDTO.class));
+        verify(outfitService).updateOutfit(eq(outfitId), eq(userId), any(OutfitDTO.class));
     }
 
     @Test
@@ -200,10 +201,10 @@ class OutfitControllerTest {
     @Test
     @DisplayName("DELETE /api/outfits/{id} — 204 No Content")
     void deleteOutfit_returnsNoContent() throws Exception {
-        mockMvc.perform(delete("/api/outfits/{id}", outfitId))
+        mockMvc.perform(delete("/api/outfits/{id}", outfitId).with(authenticatedUser()))
                 .andExpect(status().isNoContent());
 
-        verify(outfitService).deleteOutfit(outfitId);
+        verify(outfitService).deleteOutfit(outfitId, userId);
     }
 }
 

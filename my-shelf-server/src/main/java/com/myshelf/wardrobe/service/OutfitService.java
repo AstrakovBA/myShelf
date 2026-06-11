@@ -10,6 +10,8 @@ import com.myshelf.wardrobe.mapper.OutfitMapper;
 import com.myshelf.wardrobe.repository.ItemRepository;
 import com.myshelf.wardrobe.repository.OutfitRepository;
 import com.myshelf.wardrobe.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,13 +112,17 @@ public class OutfitService {
      * @param outfitDTO новые данные образа и слотов
      * @return обновлённый образ
      */
-    public OutfitDTO updateOutfit(UUID outfitId, OutfitDTO outfitDTO) {
+    public OutfitDTO updateOutfit(UUID outfitId, UUID currentUserId, OutfitDTO outfitDTO) {
         Outfit outfit = outfitRepository.findWithSlots(outfitId)
-                .orElseThrow(() -> new IllegalArgumentException("Образ не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Образ не найден"));
+
+        if (!outfit.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Нет доступа к этому образу");
+        }
 
         outfitMapper.updateEntityFromDTO(outfit, outfitDTO);
         outfit.getSlots().clear();
-        applySlotsFromDTO(outfit, outfitDTO.getSlots(), outfit.getUser().getId());
+        applySlotsFromDTO(outfit, outfitDTO.getSlots(), currentUserId);
 
         Outfit updatedOutfit = outfitRepository.save(outfit);
         return outfitMapper.toDTO(updatedOutfit);
@@ -127,11 +133,15 @@ public class OutfitService {
      *
      * @param outfitId идентификатор образа
      */
-    public void deleteOutfit(UUID outfitId) {
-        if (!outfitRepository.existsById(outfitId)) {
-            throw new IllegalArgumentException("Образ не найден");
+    public void deleteOutfit(UUID outfitId, UUID currentUserId) {
+        Outfit outfit = outfitRepository.findById(outfitId)
+                .orElseThrow(() -> new EntityNotFoundException("Образ не найден"));
+
+        if (!outfit.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Нет доступа к этому образу");
         }
-        outfitRepository.deleteById(outfitId);
+
+        outfitRepository.delete(outfit);
     }
 
     private void applySlotsFromDTO(Outfit outfit, List<OutfitSlotDTO> slotDTOs, UUID userId) {

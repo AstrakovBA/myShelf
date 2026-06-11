@@ -15,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import jakarta.persistence.EntityNotFoundException;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -213,7 +215,7 @@ class ItemServiceTest {
         when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        ItemDTO result = itemService.updateItem(itemId, updatedDTO);
+        ItemDTO result = itemService.updateItem(itemId, userId, updatedDTO);
 
         // Assert
         assertThat(result.getName()).isEqualTo("Updated T-Shirt");
@@ -231,8 +233,8 @@ class ItemServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> itemService.updateItem(itemId, testItemDTO))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> itemService.updateItem(itemId, userId, testItemDTO))
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Вещь не найдена");
 
         verify(itemRepository).findById(itemId);
@@ -265,31 +267,52 @@ class ItemServiceTest {
     // ===== DELETE =====
 
     @Test
+    @DisplayName("updateItem — вещь принадлежит другому пользователю")
+    void updateItem_accessDenied() {
+        UUID otherUserId = UUID.randomUUID();
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
+
+        assertThatThrownBy(() -> itemService.updateItem(itemId, otherUserId, testItemDTO))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Нет доступа");
+
+        verify(itemRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("deleteItem — успешное удаление вещи")
     void deleteItem_success() {
-        // Arrange
-        when(itemRepository.existsById(itemId)).thenReturn(true);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
 
-        // Act
-        itemService.deleteItem(itemId);
+        itemService.deleteItem(itemId, userId);
 
-        // Assert
-        verify(itemRepository).existsById(itemId);
-        verify(itemRepository).deleteById(itemId);
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository).delete(testItem);
     }
 
     @Test
     @DisplayName("deleteItem — вещь не найдена при удалении")
     void deleteItem_notFound() {
-        // Arrange
-        when(itemRepository.existsById(itemId)).thenReturn(false);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThatThrownBy(() -> itemService.deleteItem(itemId))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> itemService.deleteItem(itemId, userId))
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Вещь не найдена");
 
-        verify(itemRepository).existsById(itemId);
-        verify(itemRepository, never()).deleteById(any());
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("deleteItem — вещь принадлежит другому пользователю")
+    void deleteItem_accessDenied() {
+        UUID otherUserId = UUID.randomUUID();
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(testItem));
+
+        assertThatThrownBy(() -> itemService.deleteItem(itemId, otherUserId))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Нет доступа");
+
+        verify(itemRepository, never()).delete(any());
     }
 }
