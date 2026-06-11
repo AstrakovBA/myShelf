@@ -45,7 +45,19 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Публичные эндпоинты аутентификации
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // Swagger и OpenAPI - разрешить доступ всем
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+                        // Остальные API эндпоинты требуют аутентификации
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/users/**",
