@@ -1,4 +1,4 @@
-# API Documentation
+# Документация API
 
 ## Swagger UI
 
@@ -24,7 +24,7 @@ http://localhost:8080/v3/api-docs
 
 ### Скриншот Swagger UI
 
-![Swagger UI](./swagger-ui-screenshot.png)
+![Swagger UI](./swagger-ui-screenshot.jpeg)
 
 ## Для разработчиков
 
