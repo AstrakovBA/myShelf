@@ -3,7 +3,10 @@ package com.myshelf.myshelf_app.util
 object Constants {
 
     // Network
-    const val BASE_URL = "http://10.0.2.2:8080/api/"
+    // ✅ Для ЭМУЛЯТОРА Android Studio: используйте http://10.0.2.2:8080/api/
+    // ✅ Для ФИЗИЧЕСКОГО смартфона (локальная сеть): используйте http://192.168.0.14:8080/api/
+    // 📝 Рекомендуется использовать ApiConfig.BASE_URL вместо константы BASE_URL для большей гибкости
+    const val BASE_URL = ApiConfig.BASE_URL
     const val CONNECT_TIMEOUT_SECONDS = 30L
     const val READ_TIMEOUT_SECONDS = 30L
     const val WRITE_TIMEOUT_SECONDS = 30L
