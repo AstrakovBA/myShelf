@@ -3,7 +3,7 @@
 ---
 
 1. [Инициация проекта и бизнес-модель](00-project-charter/README.md)
-2. [Пользовательские требования](01-requirements/README.md)
+2. [Проектирование требований](01-requirements/README.md)
 3. [Проектирование базы данных](02-architecture/README.md)
 4. [Проектирование архитектуры](03-database/README.md)
 5. [Детальное проектирование](04-detailed-design/README.md)
