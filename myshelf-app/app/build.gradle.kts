@@ -89,6 +89,9 @@ dependencies {
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
+    // PreferenceManager
+    implementation("androidx.preference:preference-ktx:1.2.1")
+
     // Images
     implementation(libs.coil.compose)
 

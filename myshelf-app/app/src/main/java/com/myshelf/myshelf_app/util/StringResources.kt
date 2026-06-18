@@ -8,7 +8,7 @@ object StringResources {
     private lateinit var appContext: Context
 
     fun init(context: Context) {
-        appContext = context.applicationContext
+        appContext = context
     }
 
     fun getString(@StringRes resId: Int): String = appContext.getString(resId)

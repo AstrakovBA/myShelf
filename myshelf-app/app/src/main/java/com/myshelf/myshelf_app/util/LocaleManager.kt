@@ -3,13 +3,15 @@ package com.myshelf.myshelf_app.util
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import com.myshelf.myshelf_app.data.repository.SettingsRepository
+import androidx.preference.PreferenceManager
+import com.myshelf.myshelf_app.util.Constants
 import java.util.Locale
 
 object LocaleManager {
-
     fun getSavedLanguage(context: Context): String {
-        return SettingsRepository(context.applicationContext).getLanguageBlocking()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return prefs.getString(Constants.PREF_LANGUAGE, Constants.DEFAULT_LANGUAGE)
+            ?: Constants.DEFAULT_LANGUAGE
     }
 
     fun wrapContext(context: Context, languageCode: String): Context {

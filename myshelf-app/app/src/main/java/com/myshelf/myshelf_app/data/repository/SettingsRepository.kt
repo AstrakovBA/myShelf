@@ -20,7 +20,7 @@ class SettingsRepository(
     private val context: Context
 ) {
 
-    private val dataStore = context.applicationContext.settingsDataStore
+    private val dataStore = context.settingsDataStore
 
     suspend fun saveTheme(isDark: Boolean) {
         dataStore.edit { preferences ->
@@ -47,9 +47,14 @@ class SettingsRepository(
     }
 
     suspend fun saveLanguage(language: String) {
+        // Сохраняем в DataStore
         dataStore.edit { preferences ->
             preferences[KEY_LANGUAGE] = language
         }
+
+        // Также сохраняем в SharedPreferences для быстрого доступа при старте
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+        prefs.edit().putString(Constants.PREF_LANGUAGE, language).apply()
     }
 
     fun getLanguageFlow(): Flow<String> {

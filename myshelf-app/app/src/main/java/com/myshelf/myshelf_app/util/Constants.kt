@@ -13,6 +13,7 @@ object Constants {
 
     // SharedPreferences
     const val PREFS_NAME = "myshelf_preferences"
+    const val PREF_LANGUAGE = "pref_language"
     const val PREF_ACCESS_TOKEN = "pref_access_token"
     const val PREF_REFRESH_TOKEN = "pref_refresh_token"
     const val PREF_USER_ID = "pref_user_id"

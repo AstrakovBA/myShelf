@@ -202,7 +202,7 @@ fun SettingsScreen(
     if (showDeleteAccountDialog) {
         DeleteAccountDialog(
             isLoading = isDeletingAccount,
-            onConfirm = { password -> authViewModel.deleteAccount(password) },
+            onConfirm = { password: String -> authViewModel.deleteAccount(password) },
             onDismiss = { if (!isDeletingAccount) showDeleteAccountDialog = false }
         )
     }
@@ -641,49 +641,3 @@ private fun DeleteAccountDialog(
     )
 }
 
-@Composable
-private fun DeleteAccountDialog(
-    isLoading: Boolean,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var password by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.settings_delete_account)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.settings_delete_account_confirmation))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.settings_old_password)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(password) },
-                enabled = !isLoading && password.isNotBlank()
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                } else {
-                    Text(
-                        text = stringResource(R.string.settings_delete_account),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isLoading) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
-}
