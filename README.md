@@ -1,7 +1,9 @@
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-66.8%25-7F52FF?logo=kotlin)](https://kotlinlang.org/)
 [![Java](https://img.shields.io/badge/Java-31.6%25-007396?logo=java)](https://www.java.com/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen)](https://github.com/AstrakovBA/myShelf)
 
 # 📱 myShelf — Мобильное приложение для организации личного гардероба
 
@@ -208,10 +210,14 @@ cd myshelf-app
 | Метрика | Значение |
 |---------|----------|
 | **Всего коммитов** | 105+ |
-| **Период разработки** | 01.03.2026 – 15.06.2026 |
+| **Период разработки** | 01.03.2026 – 30.05.2026 |
 | **Средняя частота** | ~7 коммитов в неделю |
 
+### График активности
+![](docs/other/activity_graph.png)
 
+### Тепловая карта
+![](docs/other/heatmap.png)
 
 ---
 
