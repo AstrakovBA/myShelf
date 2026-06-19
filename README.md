@@ -5,7 +5,8 @@
 
 # 📱 myShelf — Мобильное приложение для организации личного гардероба
 
-**Автор:** Астраков Борис Алексеевич  
+**Автор:** Астраков Борис Александрович
+**Группа:** ПИЖ-б-о-23-1(1)
 **Тип проекта:** Курсовой проект с клиент-серверной архитектурой  
 **Дата начала:** 01.03.2026  
 **Дата сдачи:** 30.05.2026
@@ -28,7 +29,7 @@
 
 ## 🏗️ Архитектура
 
-Система построена на архитектурном паттерне **PCMEF** (Presentation-Control-Mediator-Entity-Framework):
+Система построена на архитектурном паттерне **PCMEF** (Presentation-Control-Mediator-Entity-Foundation):
 
 | Слой | Технология | Ответственность |
 |------|-----------|-----------------|
@@ -36,7 +37,7 @@
 | **Control (C)** | Spring Boot REST Controllers | REST API, валидация DTO |
 | **Mediator (M)** | Spring Boot Services | Бизнес-логика, транзакции |
 | **Entity (E)** | JPA Entities | Сущности данных |
-| **Framework (F)** | Spring Data JPA, Repositories | Доступ к БД |
+| **Foundation (F)** | Spring Data JPA, Repositories | Доступ к БД |
 
 Подробнее в документации: [Архитектурное проектирование](docs/02-architecture/)
 
@@ -263,24 +264,6 @@ open target/site/jacoco/index.html
 
 ---
 
-## 🤝 Контрибьютинг
-
-Для внесения изменений:
-
-1. Создайте fork репозитория
-2. Создайте ветку для вашей функции (`git checkout -b feature/amazing-feature`)
-3. Коммитьте изменения (`git commit -m 'Add some amazing feature'`)
-4. Пушьте в ветку (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
-
-**Требования к коду:**
-- Следовать Google Java Style Guide
-- Написать тесты для новой функциональности
-- Документировать public методы (JavaDoc)
-- Убедиться, что Checkstyle проходит без ошибок
-
----
-
 ## 📝 Лицензия
 
 MIT License — [LICENSE](LICENSE)
@@ -289,15 +272,4 @@ MIT License — [LICENSE](LICENSE)
 
 ---
 
-## 🔗 Полезные ссылки
-
-- 📦 [Репозиторий на GitHub](https://github.com/AstrakovBA/myShelf)
-- 📚 [Полная документация](docs/)
-- 🔌 [Swagger UI API](http://localhost:8080/swagger-ui.html)
-- 🐳 [Docker Compose конфиг](docker/)
-- 📱 [Мобильное приложение](myshelf-app/)
-- 🖥️ [Серверная часть](my-shelf-server/)
-
----
-
-**Вопросы или предложения?** Создайте [Issue](https://github.com/AstrakovBA/myShelf/issues) или напишите PR! 🚀
+По возникшим вопросам писать на [почту автора проекта.](bororo8918@gmail.com)
