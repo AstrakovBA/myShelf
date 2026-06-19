@@ -26,7 +26,7 @@
 ![](screenshots/5_item_details.jpg)
 ---
 
-## 7. Экран создания вещи
+## 7. Экран добавления вещи
 ![](screenshots/6_item_create.jpg)
 ---
 
