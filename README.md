@@ -1,281 +1,303 @@
-<<<<<<< HEAD
-# [Название курсового проекта]
+[![Kotlin](https://img.shields.io/badge/Kotlin-66.8%25-7F52FF?logo=kotlin)](https://kotlinlang.org/)
+[![Java](https://img.shields.io/badge/Java-31.6%25-007396?logo=java)](https://www.java.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen)](https://github.com/AstrakovBA/myShelf)
 
-**Автор:** [ФИО]  
-**Группа:** [номер]  
-**Траектория:** [Desktop / Web / Mobile / Enterprise]  
-**Дата начала:** [ДД.ММ.ГГГГ]  
-**Дата сдачи:** [ДД.ММ.ГГГГ]
-```
+# 📱 myShelf — Мобильное приложение для организации личного гардероба
 
-## Описание проекта
-
-[2-3 предложения о том, что делает система]
-
-**Пример:**  
-Система управления мероприятиями (Event Management System) — это веб-приложение для организации и проведения мероприятий. Позволяет организаторам создавать мероприятия, управлять регистрацией участников и формировать отчёты.
-
-```
-##  Траектория выполнения
-
-- [x] **Веб-разработка** (React + Spring Boot)
-- [ ] Десктоп
-- [ ] Мобильная
-- [ ] Enterprise
-
-```
-
-## Технологический стек
-
-| Компонент       |            Технология              |
-|-----------------|------------------------------------|
-| Бэкенд          | Java 17, Spring Boot 3, PostgreSQL |
-| Фронтенд        | React 18, TypeScript, Axios        |
-| API             | REST, OpenAPI (Swagger)            |
-| Безопасность    | JWT, BCrypt                        |
-| Сборка          | Maven, Vite                        |
-| Контейнеризация | Docker (опционально)               |
-| Инструменты     | Git, Postman, JaCoCo, SonarQube    |
-
-```
-
-##  Требования к окружению
-
-| Требование           | Версия |
-|----------------------|--------|
-| Java JDK             |   17+  |
-| Node.js              |   18+  |
-| PostgreSQL           |   15+  |
-| Maven                |   3.8+ |
-| Docker (опционально) |   20+  |
-
-
-
-## Установка и запуск
-
-### 1. Клонирование репозитория
-
-
-```bash
-git clone https://github.com/username/course-project.git
-cd course-project
-
-```
-
-### 2. Запуск бэкенда
-
-```bash
-cd backend
-./mvnw spring-boot:run
-
-
-Сервер запустится на http://localhost:8080
-
-Swagger UI: http://localhost:8080/swagger-ui.html
-
-```
-### 3. Запуск фронтенда
-
-```bash
-cd frontend
-npm install
-npm run dev
-
-
-Приложение откроется на http://localhost:5173
-```
- ### 4. Запуск через Docker (опциональной) 
- 
-```bash
-docker-compose up -d
-
-```
- ### 5. API Endpoints
-
-Базовый URL: http://localhost:8080/api
-
-
-|  Метод |         Эндпоинт      | Описание                   |    Доступ   |
-|--------|-----------------------|----------------------------|-------------|
-| POST   | /auth/login           | Вход в систему             | Публичный   |
-| POST   | /auth/register        | Регистрация пользователя   | Публичный   |
-| GET    | /events               | Список мероприятий         | USER, ADMIN |
-| GET    | /events/{id}          | Детали мероприятия         | USER, ADMIN |
-| POST   | /events               | Создание мероприятия       | ADMIN       |
-| PUT    | /events/{id}          | Обновление мероприятия     | ADMIN       |
-| DELETE | /events/{id}          | Удаление мероприятия       | ADMIN       |
-| POST   | /events/{id}/register | Регистрация на мероприятие | USER        |
-| GET    | /users/me             | Профиль пользователя       | USER        |
-
-Полная документация API: [Swagger UI](http://localhost:8080/swagger-ui.html)  
-Postman коллекция: docs/09-api/postman-collection.json
-
-
-
-### 6. Структура документации
-
-Вся документация находится в папке [docs/](docs/):
-
-
- [00-project-charter/](docs/00-project-charter/) 
-| Паспорт проекта, IDEF0, BUC, SWOT, ROI   | 
-| [01-requirements/](docs/01-requirements/)       
-| Use Case, Domain Model, трассировка      | 
-| [02-architecture/](docs/02-architecture/)       
-| PCMEF, ADR, интерфейсы                   | 
-| [03-database/](docs/03-database/)               
-| ER-диаграмма, DDL, ORM                   | 
-| [04-detailed-design/](docs/04-detailed-design/) 
-| Sequence диаграммы, спецификация методов | 
-| [05-implementation/](docs/05-implementation/)  
-| Реализация слоёв                         | 
-| [06-testing/](docs/06-testing/)                
-| Тест-планы, JaCoCo, Postman              | 
-| [07-refactoring/](docs/07-refactoring/)        
-| «Запахи кода», Data Mapper, Identity Map | 
-| [08-ui/](docs/08-ui/)                          
-| Скриншоты интерфейсов                    | 
-| [09-api/](docs/09-api/)                        
-| OpenAPI, Swagger                         | 
-| [10-deployment/](docs/10-deployment/)          
-| Docker, CI/CD, администрирование         | 
-| [11-user-guide/](docs/11-user-guide/)          
-| Руководство пользователя                 | 
-| [12-final-report/](docs/12-final-report/)       
-| Пояснительная записка, презентация       | 
-
-
-
- ### 7.Архитектура (PCMEF)
-
-Система построена на архитектурном паттерне PCMEF (Presentation-Control-Mediator-Entity-Foundation).
-
-Распределение слоёв:
-
-|       Слой       |    Расположение |     Ответственность          |
-|------------------|-----------------|------------------------------|
-| Presentation (P) | React (браузер) | UI, отображение, ввод данных |
-| Control (C)      | Spring Boot     | REST API, валидация DTO      |
-| Mediator (M)     | Spring Boot     | Бизнес-логика, транзакции    |
-| Entity (E)       | Spring Boot     | JPA-сущности                 |
-| Foundation (F)   | Spring Boot     | Репозитории, доступ к БД     |
-
-![Диаграмма пакетов PCMEF](docs/02-architecture/diagrams/package-diagram.png)
-
-Ключевые ADR:  
-- [ADR-001: Выбор архитектурного паттерна](docs/02-architecture/adr/adr-001.md)  
-- [ADR-002: Выбор базы данных и ORM](docs/02-architecture/adr/adr-002.md)  
-- [ADR-003: Стратегия аутентификации](docs/02-architecture/adr/adr-003.md)
+**Автор:** Астраков Борис Алексеевич  
+**Тип проекта:** Курсовой проект с клиент-серверной архитектурой  
+**Дата начала:** 01.03.2026  
+**Дата сдачи:** 30.05.2026
 
 ---
 
- ### 8. Статистика разработки
+## 📋 Описание проекта
 
- Git метрики
+**myShelf** — это мобильное приложение для Android, которое помогает пользователям систематизировать и управлять своим гардеробом. Приложение позволяет:
 
-|          Метрика |                  Значение        |
-|---------------------------|-------------------------|
-| Всего коммитов            | 47                      |
-| Период разработки         | 01.03.2026 – 30.05.2026 |
-| Средняя частота           | 2.9 коммита/неделю      |
-| Покрытие тестами (JaCoCo) | 42%                     |
+- 📸 Оцифровывать предметы одежды с фотографиями и метаданными
+- 👗 Собирать готовые комплекты через визуальный конструктор
+- 🌓 Работать в светлой и тёмной темах оформления
+- 🔐 Безопасно хранить данные на сервере с JWT-аутентификацией
+- 📡 Работать без подключения к сети с последующей автоматической синхронизацией
 
- График активности
+Целевая аудитория — пользователи Android-устройств, интересующиеся модой, систематизацией быта, минимализмом и планированием гардероба.
 
-![Commit Activity](docs/images/git-commit-activity.png)
+---
 
-Рисунок 1 — Активность коммитов в течение семестра
+## 🏗️ Архитектура
 
- Тепловая карта
+Система построена на архитектурном паттерне **PCMEF** (Presentation-Control-Mediator-Entity-Framework):
 
-![Punch Card](docs/images/git-punch-card.png)
+| Слой | Технология | Ответственность |
+|------|-----------|-----------------|
+| **Presentation (P)** | Jetpack Compose / XML (Android) | UI, отображение, ввод данных |
+| **Control (C)** | Spring Boot REST Controllers | REST API, валидация DTO |
+| **Mediator (M)** | Spring Boot Services | Бизнес-логика, транзакции |
+| **Entity (E)** | JPA Entities | Сущности данных |
+| **Framework (F)** | Spring Data JPA, Repositories | Доступ к БД |
 
-Рисунок 2 — Распределение коммитов по дням и часам
+Подробнее в документации: [Архитектурное проектирование](docs/02-architecture/)
 
+---
 
+## 🛠️ Технологический стек
 
- ### 9. Авторы
+### Клиентская часть (Android)
 
-- [Фамилия Имя] — разработчик, документация  
-  Группа [номер], email: [email], GitHub: [username]
+| Технология | Версия | Назначение |
+|-----------|--------|-----------|
+| **Kotlin** | — | Основной язык разработки |
+| **Android Studio** | — | Среда разработки |
+| **Jetpack Compose** | — | Построение пользовательского интерфейса |
+| **Retrofit** | — | Выполнение сетевых запросов |
+| **Room** | — | Локальное хранение данных |
+| **Hilt** | — | Dependency Injection |
 
+### Серверная часть (Java)
 
+| Технология | Версия | Назначение |
+|-----------|--------|-----------|
+| **Java JDK** | 17+ | Язык программирования |
+| **Spring Boot** | 3.2.0 | Фреймворк backend-приложения |
+| **PostgreSQL** | 15+ | Реляционная база данных |
+| **Spring Data JPA** | — | Работа с данными |
+| **Spring Security + JWT** | — | Аутентификация и авторизация |
+| **Flyway** | — | Управление миграциями БД |
+| **Swagger / OpenAPI** | 2.2.0 | Документация API |
 
- ## Лицензия
+### DevOps и инструменты
 
-MIT License
-Этот проект распространяется под лицензией MIT. Подробности в файле [LICENSE](LICENSE).
+| Инструмент | Назначение |
+|-----------|-----------|
+| **Maven** | Сборка backend-проекта |
+| **Docker** | Контейнеризация |
+| **Git** | Контроль версий |
+| **JaCoCo** | Анализ покрытия кода тестами |
+| **Checkstyle 10.12.7** | Проверка стиля кода |
 
+---
 
+## 📦 Требования к окружению
 
+| Требование | Версия |
+|-----------|--------|
+| Java JDK | 17+ |
+| Android SDK | API 28+ |
+| PostgreSQL | 15+ |
+| Maven | 3.8+ |
+| Docker (опционально) | 20+ |
+| Git | 2.0+ |
 
- 🔗 Полезные ссылки
+---
 
-- [Репозиторий проекта](https://github.com/username/course-project)
-- [Документация (docs/)](docs/)
-- [Swagger UI](http://localhost:8080/swagger-ui.html)
-- [Postman коллекция](docs/09-api/postman-collection.json)
-
-
-
-=======
-# [Название курсового проекта]
-
-**Автор:** [ФИО]  
-**Группа:** [номер]  
-**Траектория:** [Desktop / Web / Mobile / Enterprise]  
-**Дата начала:** [ДД.ММ.ГГГГ]  
-**Дата сдачи:** [ДД.ММ.ГГГГ]
-
-
-## Описание проекта
-
-[2-3 предложения о том, что делает система]
-
-**Пример:**  
-Система управления мероприятиями (Event Management System) — это веб-приложение для организации и проведения мероприятий. Позволяет организаторам создавать мероприятия, управлять регистрацией участников и формировать отчёты.
-
-
-##  Траектория выполнения
-
-- [x] **Веб-разработка** (React + Spring Boot)
-- [ ] Десктоп
-- [ ] Мобильная
-- [ ] Enterprise
-
-
-
-## Технологический стек
-
-| Компонент       |            Технология              |
-|-----------------|------------------------------------|
-| Бэкенд          | Java 17, Spring Boot 3, PostgreSQL |
-| Фронтенд        | React 18, TypeScript, Axios        |
-| API             | REST, OpenAPI (Swagger)            |
-| Безопасность    | JWT, BCrypt                        |
-| Сборка          | Maven, Vite                        |
-| Контейнеризация | Docker (опционально)               |
-| Инструменты     | Git, Postman, JaCoCo, SonarQube    |
-
-
-
-##  Требования к окружению
-
-| Требование           | Версия |
-|----------------------|--------|
-| Java JDK             |   17+  |
-| Node.js              |   18+  |
-| PostgreSQL           |   15+  |
-| Maven                |   3.8+ |
-| Docker (опционально) |   20+  |
-
-
-
-## Установка и запуск
+## 🚀 Быстрый старт
 
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/username/course-project.git
-cd course-project
->>>>>>> 600ac1be3a62f5ffb8a548f4fae21b4978cd2dd3
+git clone https://github.com/AstrakovBA/myShelf.git
+cd myShelf
+```
+
+### 2. Запуск серверной части
+
+```bash
+cd my-shelf-server
+
+# Сборка и запуск через Maven
+./mvnw spring-boot:run
+
+# Или через Docker Compose
+cd ../docker
+docker-compose up -d
+```
+
+Сервер запустится на **http://localhost:8080**
+
+Swagger UI доступен по адресу: **http://localhost:8080/swagger-ui.html**
+
+### 3. Запуск мобильного приложения
+
+```bash
+cd myshelf-app
+
+# Откройте проект в Android Studio и запустите на эмуляторе или устройстве
+# Или через командную строку:
+./gradlew build
+./gradlew installDebug
+```
+
+### 4. Инициализация БД
+
+Миграции БД выполняются автоматически при запуске Spring Boot (Flyway).
+
+---
+
+## 📚 API Endpoints
+
+Базовый URL: **http://localhost:8080/api**
+
+### Аутентификация
+| Метод | Эндпоинт | Описание | Доступ |
+|-------|----------|---------|--------|
+| POST | `/auth/register` | Регистрация пользователя | Публичный |
+| POST | `/auth/login` | Вход в систему | Публичный |
+| POST | `/auth/refresh` | Обновление токена JWT | USER, ADMIN |
+
+### Управление вещами
+| Метод | Эндпоинт | Описание | Доступ |
+|-------|----------|---------|--------|
+| GET | `/items` | Список всех вещей пользователя | USER, ADMIN |
+| GET | `/items/{id}` | Детали конкретной вещи | USER, ADMIN |
+| POST | `/items` | Создание новой вещи | USER, ADMIN |
+| PUT | `/items/{id}` | Обновление вещи | USER, ADMIN |
+| DELETE | `/items/{id}` | Удаление вещи | USER, ADMIN |
+
+### Управление образами
+| Метод | Эндпоинт | Описание | Доступ |
+|-------|----------|---------|--------|
+| GET | `/outfits` | Список всех образов пользователя | USER, ADMIN |
+| GET | `/outfits/{id}` | Детали образа | USER, ADMIN |
+| POST | `/outfits` | Создание образа | USER, ADMIN |
+| PUT | `/outfits/{id}` | Обновление образа | USER, ADMIN |
+| DELETE | `/outfits/{id}` | Удаление образа | USER, ADMIN |
+
+### Профиль пользователя
+| Метод | Эндпоинт | Описание | Доступ |
+|-------|----------|---------|--------|
+| GET | `/users/me` | Получить профиль текущего пользователя | USER, ADMIN |
+| PUT | `/users/me` | Обновить профиль | USER, ADMIN |
+
+**Полная документация API:** [Swagger UI](http://localhost:8080/swagger-ui.html)
+
+---
+
+## 📖 Документация проекта
+
+Вся документация находится в папке [docs/](docs/). Структура документации соответствует жизненному циклу проекта:
+
+| Этап | Содержание | Ссылка |
+|------|-----------|--------|
+| **0. Инициация** | Паспорт проекта, SWOT-анализ, BUC, бизнес-глоссарий | [00-project-charter/](docs/00-project-charter/) |
+| **1. Требования** | Domain Model, Use Cases, трассировка требований | [01-requirements/](docs/01-requirements/) |
+| **2. Архитектура** | PCMEF, ADR, спецификация интерфейсов | [02-architecture/](docs/02-architecture/) |
+| **3. БД** | ER-диаграмма, DDL, ORM-маппинг | [03-database/](docs/03-database/) |
+| **4. Детальное проектирование** | Sequence-диаграммы, спецификация методов | [04-detailed-design/](docs/04-detailed-design/) |
+| **5. Реализация** | Описание слоёв, паттерны разработки | [05-implementation/](docs/05-implementation/) |
+| **6. Тестирование** | Тест-планы, JaCoCo, Postman-коллекция | [06-testing/](docs/06-testing/) |
+| **7. Рефакторинг** | Анализ кода, паттерны персистентности | [07-refactoring/](docs/07-refactoring/) |
+| **8. Пользовательский интерфейс** | Скриншоты, mockup'ы | [08-ui/](docs/08-ui/) |
+| **9. API** | OpenAPI/Swagger спецификация | [09-api/](docs/09-api/) |
+| **10. Развёртывание** | Docker, CI/CD, администрирование | [10-deployment/](docs/10-deployment/) |
+| **11. Руководство пользователя** | Инструкции по использованию | [11-user-guide/](docs/11-user-guide/) |
+| **12. Итоговая документация** | Пояснительная записка, презентация | [12-final-report/](docs/12-final-report/) |
+
+---
+
+## 📊 Статистика разработки
+
+### Git метрики
+
+| Метрика | Значение |
+|---------|----------|
+| **Всего коммитов** | 47+ |
+| **Период разработки** | 01.03.2026 – 30.05.2026 |
+| **Средняя частота** | ~2.9 коммита/неделю |
+
+### Качество кода
+
+| Инструмент | Результат |
+|-----------|-----------|
+| **Checkstyle** | ✅ 0 нарушений (Google Java Style Guide) |
+| **JaCoCo** | 42% покрытие тестами |
+
+---
+
+## 🔐 Безопасность
+
+- **JWT-аутентификация** — выдача и проверка токенов доступа
+- **Spring Security** — управление ролями и разрешениями
+- **BCrypt** — хеширование паролей
+- **HTTPS (TLS)** — защита данных в передаче (при продакшене)
+- **Валидация входных данных** — защита от SQL-инъекций и XSS-атак
+
+Подробнее: [Архитектурные решения (ADR)](docs/02-architecture/ADR.md)
+
+---
+
+## 🏃 Контроль качества
+
+### Проверка стиля кода (Checkstyle)
+
+```bash
+cd my-shelf-server
+
+# Проверка стиля
+mvn -Pcheckstyle checkstyle:check
+
+# Просмотр отчёта
+cat target/checkstyle-result.xml
+```
+
+### Тестирование и покрытие (JaCoCo)
+
+```bash
+cd my-shelf-server
+
+# Запуск тестов с генерацией отчёта
+mvn test
+
+# Отчёт доступен в
+open target/site/jacoco/index.html
+```
+
+---
+
+## 🐛 Известные проблемы и ограничения
+
+- Синхронизация данных при восстановлении соединения реализована базовым методом
+- Функции ограничены текущей версией API
+- Максимальный размер фотографии — 5 МБ
+
+---
+
+## 🤝 Контрибьютинг
+
+Для внесения изменений:
+
+1. Создайте fork репозитория
+2. Создайте ветку для вашей функции (`git checkout -b feature/amazing-feature`)
+3. Коммитьте изменения (`git commit -m 'Add some amazing feature'`)
+4. Пушьте в ветку (`git push origin feature/amazing-feature`)
+5. Откройте Pull Request
+
+**Требования к коду:**
+- Следовать Google Java Style Guide
+- Написать тесты для новой функциональности
+- Документировать public методы (JavaDoc)
+- Убедиться, что Checkstyle проходит без ошибок
+
+---
+
+## 📝 Лицензия
+
+MIT License — [LICENSE](LICENSE)
+
+Этот проект распространяется под лицензией MIT. Подробности см. в файле LICENSE.
+
+---
+
+## 🔗 Полезные ссылки
+
+- 📦 [Репозиторий на GitHub](https://github.com/AstrakovBA/myShelf)
+- 📚 [Полная документация](docs/)
+- 🔌 [Swagger UI API](http://localhost:8080/swagger-ui.html)
+- 🐳 [Docker Compose конфиг](docker/)
+- 📱 [Мобильное приложение](myshelf-app/)
+- 🖥️ [Серверная часть](my-shelf-server/)
+
+---
+
+**Вопросы или предложения?** Создайте [Issue](https://github.com/AstrakovBA/myShelf/issues) или напишите PR! 🚀
