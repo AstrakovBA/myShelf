@@ -75,7 +75,6 @@ public class AuthService {
 
         // Создаем настройки пользователя по умолчанию
         UserSettings settings = UserSettings.builder()
-                .userId(UUID.randomUUID())
                 .user(savedUser)
                 .build();
         userSettingsRepository.save(settings);
