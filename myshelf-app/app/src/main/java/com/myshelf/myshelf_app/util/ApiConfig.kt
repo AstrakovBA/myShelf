@@ -27,10 +27,10 @@ object ApiConfig {
 
     /**
      * URL для подключения со СМАРТФОНА, подключённого по USB в режиме отладки.
-     * Предварительно выполните команду: adb forward tcp:8080 tcp:8080
+     * Предварительно выполните команду: adb reverse tcp:8080 tcp:8080
      * Тогда смартфон сможет подключиться к localhost (вашему ноутбуку).
      */
-    const val DEVICE_USB_DEBUG_API_URL = "http://localhost:8080/api/"
+    const val DEVICE_USB_DEBUG_API_URL = "http://127.0.0.1:8080/api/"
 
     /**
      * Активный базовый URL.
@@ -39,5 +39,5 @@ object ApiConfig {
      * - DEVICE_WIFI_API_URL для смартфона в локальной сети
      * - DEVICE_USB_DEBUG_API_URL для смартфона по USB (после выполнения adb forward)
      */
-    const val BASE_URL = EMULATOR_API_URL
+    const val BASE_URL = DEVICE_USB_DEBUG_API_URL
 }
